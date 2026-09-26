@@ -156,28 +156,47 @@ export async function replayDryRun(client: pg.PoolClient, tenantId: string, id: 
 }
 
 export async function replayExecute(client: pg.PoolClient, tenantId: string, id: string) {
-  const updated = await client.query<{ outbox_id: string | null }>(
-    `UPDATE maydo.dead_letters
-     SET replayed_at = now()
-     WHERE tenant_id = $1 AND id = $2 AND replayed_at IS NULL
-     RETURNING outbox_id`,
+  const existing = await client.query<{ outbox_id: string | null; replayed_at: Date | null }>(
+    `SELECT outbox_id, replayed_at FROM maydo.dead_letters WHERE tenant_id = $1 AND id = $2`,
     [tenantId, id],
   );
-  if (updated.rowCount === 0) {
-    throw new Error("dead letter missing or already replayed");
-  }
-  const outboxId = updated.rows[0]?.outbox_id;
-  if (!outboxId) {
-    throw new Error("dead letter has no outbox row to reopen");
-  }
+  const letter = existing.rows[0];
+  if (!letter || letter.replayed_at) throw new Error("dead letter missing or already replayed");
+  if (!letter.outbox_id) throw new Error("dead letter has no outbox row to reopen");
+  // One statement so a failed reopen cannot leave the letter marked replayed.
+  // attempts resets so a max-attempt row can actually be tried again.
   const outbox = await client.query(
-    `UPDATE maydo.outbox
-     SET state = 'pending', lease_until = NULL, next_attempt_at = now(), last_error = NULL, updated_at = now()
-     WHERE tenant_id = $1 AND id = $2 AND state = 'dead'
-     RETURNING id, state, idempotency_key`,
-    [tenantId, outboxId],
+    `WITH target AS (
+       SELECT id AS letter_id, outbox_id
+       FROM maydo.dead_letters
+       WHERE tenant_id = $1 AND id = $2 AND replayed_at IS NULL AND outbox_id IS NOT NULL
+       FOR UPDATE
+     ),
+     reopened AS (
+       UPDATE maydo.outbox o
+       SET state = 'pending',
+           attempts = 0,
+           lease_until = NULL,
+           next_attempt_at = now(),
+           last_error = NULL,
+           updated_at = now()
+       FROM target
+       WHERE o.tenant_id = $1 AND o.id = target.outbox_id AND o.state = 'dead'
+       RETURNING o.id, o.state, o.idempotency_key, target.letter_id
+     ),
+     marked AS (
+       UPDATE maydo.dead_letters dl
+       SET replayed_at = now()
+       FROM reopened
+       WHERE dl.tenant_id = $1 AND dl.id = reopened.letter_id
+       RETURNING dl.id
+     )
+     SELECT reopened.id, reopened.state, reopened.idempotency_key
+     FROM reopened
+     JOIN marked ON marked.id = reopened.letter_id`,
+    [tenantId, id],
   );
-  if (outbox.rowCount === 0) throw new Error("outbox row was not dead");
+  if ((outbox.rowCount ?? 0) === 0) throw new Error("outbox row was not dead");
   return outbox.rows[0];
 }
 

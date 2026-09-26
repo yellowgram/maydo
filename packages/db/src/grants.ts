@@ -115,8 +115,14 @@ export async function createLocalGrant(
   }
   await client.query(
     `UPDATE maydo.grants
-     SET precedence_class = 'allow', updated_at = now()
-     WHERE tenant_id = $1 AND actor = $2 AND action = $3 AND source = 'local' AND precedence_class = 'deny'`,
+     SET precedence_class = 'allow',
+         operator_lock = false,
+         updated_at = now()
+     WHERE tenant_id = $1 AND actor = $2 AND action = $3
+       AND (
+         (source = 'local' AND precedence_class = 'deny')
+         OR operator_lock = true
+       )`,
     [input.tenantId, input.actor, input.action],
   );
   const inserted = await client.query<GrantRow>(
@@ -155,6 +161,7 @@ export async function revokeGrant(
      SET state = 'revoked',
          precedence_class = 'deny',
          sticky = false,
+         operator_lock = true,
          revoked_at = now(),
          updated_at = now()
      WHERE tenant_id = $1 AND id = $2

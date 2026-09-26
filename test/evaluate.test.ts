@@ -78,6 +78,18 @@ test("local revoke wins over sticky and provider allow", () => {
   assert.deepEqual(result.grant_ids, ["deny"]);
 });
 
+test("an operator-released provider row does not suppress a new local allow", () => {
+  const result = evaluateGrants(
+    [
+      grant({ id: "prov", source: "stripe", state: "revoked", precedence_class: "allow" }),
+      grant({ id: "local", source: "local" }),
+    ],
+    now,
+  );
+  assert.equal(result.allow, true);
+  assert.equal(result.reason, "grant_active");
+});
+
 test("a newer provider binding still allows when an older binding is revoked", () => {
   const result = evaluateGrants(
     [

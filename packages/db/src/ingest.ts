@@ -169,7 +169,7 @@ async function ingest(
           provider,
           event.providerEventId,
           plan.intent,
-          idempotencyKey(provider, event.providerEventId, plan.intent, row.action),
+          idempotencyKey(provider, event.providerEventId, plan.intent, row.action, row.actor),
           JSON.stringify(payload),
         ],
       );

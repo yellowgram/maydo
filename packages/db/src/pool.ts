@@ -39,3 +39,16 @@ export async function withTenant<T>(
 export async function setTenant(client: pg.PoolClient, tenantId: string): Promise<void> {
   await client.query(`SELECT set_config('maydo.tenant_id', $1, true)`, [tenantId]);
 }
+
+/** Runtime pools must not be the migrator. Superuser and BYPASSRLS skip RLS. */
+export async function assertRuntimeRole(pool: pg.Pool): Promise<void> {
+  const result = await pool.query<{ rolname: string; rolsuper: boolean; rolbypassrls: boolean }>(
+    `SELECT rolname, rolsuper, rolbypassrls FROM pg_roles WHERE rolname = current_user`,
+  );
+  const row = result.rows[0];
+  if (!row || row.rolsuper || row.rolbypassrls) {
+    throw new Error(
+      `${row?.rolname ?? "unknown"} must not be superuser or BYPASSRLS — point runtime at maydo_api or maydo_worker`,
+    );
+  }
+}

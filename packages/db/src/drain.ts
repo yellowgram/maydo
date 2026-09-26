@@ -165,7 +165,8 @@ async function upsertAllow(client: pg.PoolClient, tenantId: string, payload: Out
               AND grants.source_event_ts > EXCLUDED.source_event_ts THEN grants.source_event_ts
          ELSE EXCLUDED.source_event_ts END,
        updated_at = now()
-     WHERE grants.tenant_id = $1`,
+     WHERE grants.tenant_id = $1
+       AND grants.operator_lock = false`,
     [tenantId, payload.actor, payload.action, payload.source, payload.binding_id, payload.source_event_id ?? null, payload.event_ts ?? null],
   );
 }

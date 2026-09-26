@@ -3,11 +3,13 @@ import { readFileSync } from "node:fs";
 import { randomUUID } from "node:crypto";
 import {
   DEFAULT_PUBLIC_STATUS_URL,
+  DEV_KEY_PEPPER,
   STICKY_WARN_COUNT,
   parseMappingSeed,
   type KeyPrefix,
 } from "../../../packages/core/src/index.js";
 import {
+  assertRuntimeRole,
   bootstrapTenant,
   countActiveSticky,
   createKey,
@@ -89,6 +91,7 @@ async function main(group: string | undefined, action: string | undefined, rest:
       : (process.env.DATABASE_URL_API ?? requiredEnv("DATABASE_URL"));
   const pool = makePool(databaseUrl, "maydo-cli");
   try {
+    await assertRuntimeRole(pool);
     if (group === "outbox" && action === "drain") {
       const drained = await drainOnce(pool, process.env.DATABASE_URL_WORKER ? {} : { tenantId });
       console.log(JSON.stringify({ drained }));
@@ -313,7 +316,7 @@ function requiredEnv(name: string): string {
 }
 
 function pepper(): string {
-  return process.env.MAYDO_KEY_PEPPER ?? "dev-pepper-change-me";
+  return process.env.MAYDO_KEY_PEPPER ?? DEV_KEY_PEPPER;
 }
 
 function toCsv(rows: Record<string, unknown>[]): string {

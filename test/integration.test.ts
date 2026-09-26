@@ -5,10 +5,11 @@ import { after, before, describe, test } from "node:test";
 import pg from "pg";
 import { hashApiKey, mintKey, signPolar, signStripe } from "../packages/core/src/index.js";
 import { createApiServer, listen } from "../apps/api/src/server.js";
-import { applyPayload, drainOnce, makePool, migrate, replayExecute, withTenant } from "../packages/db/src/index.js";
-import { createLocalGrant, listGrantsForAllow } from "../packages/db/src/grants.js";
+import { applyPayload, assertRuntimeRole, drainOnce, makePool, migrate, replayExecute, withTenant } from "../packages/db/src/index.js";
+import { createLocalGrant, listGrantsForAllow, revokeGrant } from "../packages/db/src/grants.js";
 import { evaluateGrants } from "../packages/core/src/evaluate.js";
 import { createClient } from "../packages/sdk-ts/src/index.js";
+import { createConsoleServer } from "../apps/console/src/server.js";
 
 const MIGRATOR = process.env.DATABASE_URL ?? "postgres://postgres:postgres@127.0.0.1:5432/maydo";
 const API_URL = process.env.DATABASE_URL_API ?? "postgres://maydo_api:maydo_api_dev@127.0.0.1:5432/maydo";
@@ -433,6 +434,16 @@ describe("postgres kernel", { concurrency: 1 }, () => {
       assert.equal(response.status, 503);
       assert.equal(response.json.allow, false);
       assert.equal(response.json.reason, "maydo_unavailable");
+      const operator = await request(
+        port,
+        "POST",
+        "/v1/allow",
+        JSON.stringify({ actor: "a", action: "b" }),
+        { authorization: "Bearer md_op_not_a_decision_key", "content-type": "application/json" },
+      );
+      assert.equal(operator.status, 401);
+      assert.equal(operator.json.allow, false);
+      assert.equal(operator.json.reason, "auth_failed");
     } finally {
       server.close();
       await dead.end();
@@ -505,6 +516,10 @@ describe("postgres kernel", { concurrency: 1 }, () => {
     assert.match(dead.rows[0].reason, /incomplete payload/);
     const reopened = await withTenant(apiPool, tenant, (client) => replayExecute(client, tenant, dead.rows[0].id));
     assert.equal(reopened.state, "pending");
+    const attempts = await migrator.query<{ attempts: number }>(`SELECT attempts FROM maydo.outbox WHERE id = $1`, [
+      dead.rows[0].outbox_id,
+    ]);
+    assert.equal(attempts.rows[0].attempts, 0);
     await assert.rejects(withTenant(apiPool, tenant, (client) => replayExecute(client, tenant, dead.rows[0].id)));
     const grants = await migrator.query(`SELECT count(*)::int AS n FROM maydo.grants WHERE tenant_id = $1`, [tenant]);
     assert.equal(grants.rows[0].n, 0);
@@ -522,6 +537,202 @@ describe("postgres kernel", { concurrency: 1 }, () => {
     const decision = await loadDecision(tenant, "org_old", "export.pdf");
     assert.equal(decision.reason, "expired");
     assert.equal(decision.allow, false);
+  });
+
+  test("runtime roles cannot be superuser or BYPASSRLS", async () => {
+    await assert.rejects(() => assertRuntimeRole(migrator), /BYPASSRLS|superuser/);
+    await assertRuntimeRole(apiPool);
+    await assertRuntimeRole(workerPool);
+  });
+
+  test("idempotency keys do not collide across tenants", async () => {
+    await truncate();
+    const tenantA = await insertTenant("idem-a");
+    const tenantB = await insertTenant("idem-b");
+    const key = "stripe|evt_shared|grant:export.pdf|org_shared";
+    const sql = `INSERT INTO maydo.outbox (
+      tenant_id, expansion_set_id, provider, provider_event_id, adapter, idempotency_key, state, payload
+    ) VALUES ($1, gen_random_uuid(), 'stripe', 'evt_shared', 'grant', $2, 'pending', '{"intent":"grant"}'::jsonb)`;
+    await migrator.query(sql, [tenantA, key]);
+    await migrator.query(sql, [tenantB, key]);
+    const count = await migrator.query<{ n: number }>(
+      `SELECT count(*)::int AS n FROM maydo.outbox WHERE idempotency_key = $1`,
+      [key],
+    );
+    assert.equal(count.rows[0].n, 2);
+  });
+
+  test("one refund expands two actors that share an action", async () => {
+    await truncate();
+    const tenant = await insertTenant("two-actors");
+    await insertGrant(tenant, "actor_one", "export.pdf", "polar", "sub_shared");
+    await insertGrant(tenant, "actor_two", "export.pdf", "polar", "sub_shared");
+    const { token, secret } = await polarEndpoint(tenant);
+    const server = createApiServer({ pool: apiPool, pepper: PEPPER });
+    await listen(server, 0);
+    const port = (server.address() as { port: number }).port;
+    try {
+      const response = await postPolar(port, token, secret, "wh_two_actors", {
+        type: "order.refunded",
+        data: {
+          id: "ord_shared",
+          status: "refunded",
+          subscription_id: "sub_shared",
+          metadata: {},
+        },
+      });
+      assert.equal(response.status, 200, JSON.stringify(response.json));
+      assert.equal(response.json.status, "ok");
+      const rows = await migrator.query<{ actor: string }>(
+        `SELECT payload->>'actor' AS actor FROM maydo.outbox WHERE tenant_id = $1 ORDER BY payload->>'actor'`,
+        [tenant],
+      );
+      assert.deepEqual(rows.rows.map((row) => row.actor), ["actor_one", "actor_two"]);
+    } finally {
+      server.close();
+    }
+  });
+
+  test("operator revoke survives a later grant webhook until grants create", async () => {
+    await truncate();
+    const tenant = await insertTenant("op-lock");
+    const grantId = await insertGrant(tenant, "org_lock", "export.pdf", "stripe", "sub_lock");
+    await withTenant(apiPool, tenant, (client) => revokeGrant(client, tenant, grantId, "cr1"));
+    const locked = await migrator.query<{ operator_lock: boolean; state: string }>(
+      `SELECT operator_lock, state FROM maydo.grants WHERE id = $1`,
+      [grantId],
+    );
+    assert.equal(locked.rows[0].operator_lock, true);
+    assert.equal(locked.rows[0].state, "revoked");
+    await migrator.query(
+      `INSERT INTO maydo.outbox (
+         tenant_id, expansion_set_id, provider, provider_event_id, adapter, idempotency_key, state, payload
+       ) VALUES ($1, gen_random_uuid(), 'stripe', 'evt_relock', 'grant', 'stripe|evt_relock|grant:export.pdf|org_lock', 'pending', $2::jsonb)`,
+      [
+        tenant,
+        JSON.stringify({
+          intent: "grant",
+          actor: "org_lock",
+          action: "export.pdf",
+          source: "stripe",
+          binding_id: "sub_lock",
+          source_event_id: "evt_relock",
+          event_ts: new Date(Date.now() + 60_000).toISOString(),
+        }),
+      ],
+    );
+    assert.equal(await drainOnce(workerPool), true);
+    const still = await migrator.query<{ operator_lock: boolean; state: string }>(
+      `SELECT operator_lock, state FROM maydo.grants WHERE id = $1`,
+      [grantId],
+    );
+    assert.equal(still.rows[0].state, "revoked");
+    assert.equal(still.rows[0].operator_lock, true);
+    const denied = await loadDecision(tenant, "org_lock", "export.pdf");
+    assert.equal(denied.allow, false);
+    assert.equal(denied.reason, "explicit_revoke");
+
+    await withTenant(apiPool, tenant, (client) =>
+      createLocalGrant(client, {
+        tenantId: tenant,
+        actor: "org_lock",
+        action: "export.pdf",
+        bindingId: "local_relock",
+        sticky: false,
+        expiresAt: null,
+        note: "restore",
+        createdBy: "cr1",
+      }),
+    );
+    const restored = await loadDecision(tenant, "org_lock", "export.pdf");
+    assert.equal(restored.allow, true);
+    assert.equal(restored.reason, "grant_active");
+  });
+
+  test("decision-key IP allowlist ignores client X-Forwarded-For", async () => {
+    await truncate();
+    const tenant = await insertTenant("allowlist");
+    const decision = mintKey("md_test_");
+    await migrator.query(
+      `INSERT INTO maydo.api_keys (tenant_id, prefix, key_hash, scopes, ip_allowlist, last_four)
+       VALUES ($1, 'md_test_', $2, '{allow}', $3::cidr[], $4)`,
+      [tenant, hashApiKey(decision.token, PEPPER), ["10.9.8.7/32"], decision.lastFour],
+    );
+    const body = JSON.stringify({ actor: "a", action: "b" });
+    const server = createApiServer({ pool: apiPool, pepper: PEPPER, ratePerMin: 10_000 });
+    await listen(server, 0);
+    const port = (server.address() as { port: number }).port;
+    const trusted = createApiServer({ pool: apiPool, pepper: PEPPER, ratePerMin: 10_000, trustProxy: true });
+    await listen(trusted, 0);
+    const trustedPort = (trusted.address() as { port: number }).port;
+    try {
+      const spoofed = await request(port, "POST", "/v1/allow", body, {
+        authorization: `Bearer ${decision.token}`,
+        "content-type": "application/json",
+        "x-forwarded-for": "10.9.8.7",
+      });
+      assert.equal(spoofed.status, 401);
+      assert.equal(spoofed.json.reason, "auth_failed");
+
+      const viaProxy = await request(trustedPort, "POST", "/v1/allow", body, {
+        authorization: `Bearer ${decision.token}`,
+        "content-type": "application/json",
+        "x-forwarded-for": "127.0.0.1, 10.9.8.7",
+      });
+      assert.equal(viaProxy.status, 200);
+      assert.equal(viaProxy.json.allow, false);
+      assert.equal(viaProxy.json.reason, "no_grant");
+
+      const prepended = await request(trustedPort, "POST", "/v1/allow", body, {
+        authorization: `Bearer ${decision.token}`,
+        "content-type": "application/json",
+        "x-forwarded-for": "10.9.8.7, 127.0.0.1",
+      });
+      assert.equal(prepended.status, 401);
+    } finally {
+      server.close();
+      trusted.close();
+    }
+  });
+
+  test("console session is tenant-bound, revocable, and cannot execute replay", async () => {
+    await truncate();
+    const tenant = await insertTenant("console");
+    await insertGrant(tenant, "org_console", "export.pdf", "local", "local_console");
+    const op = mintKey("md_op_");
+    const secret = "cr1-console-session-secret-not-default";
+    await migrator.query(
+      `INSERT INTO maydo.api_keys (tenant_id, prefix, key_hash, scopes, last_four)
+       VALUES ($1, 'md_op_', $2, '{grants,replay}', $3)`,
+      [tenant, hashApiKey(op.token, PEPPER), op.lastFour],
+    );
+    const server = createConsoleServer({ pool: apiPool, pepper: PEPPER, sessionSecret: secret });
+    await listen(server, 0);
+    const port = (server.address() as { port: number }).port;
+    try {
+      const forged = await request(port, "GET", "/grants", undefined, { cookie: "maydo_session=aaaa.bbbb" });
+      assert.equal(forged.status, 302);
+      const replay = await request(port, "POST", "/replay/execute", "");
+      assert.equal(replay.status, 404);
+      assert.match(replay.text, /CLI-only/);
+
+      const signedIn = await request(port, "POST", "/login", `api_key=${encodeURIComponent(op.token)}`, {
+        "content-type": "application/x-www-form-urlencoded",
+      });
+      assert.equal(signedIn.status, 302);
+      const cookie = cookieValue(signedIn.headers["set-cookie"]);
+      assert.ok(cookie);
+      const grants = await request(port, "GET", "/grants", undefined, { cookie: `maydo_session=${cookie}` });
+      assert.equal(grants.status, 200);
+      assert.match(grants.text, /org_console/);
+
+      await migrator.query(`UPDATE maydo.api_keys SET revoked_at = now() WHERE tenant_id = $1 AND prefix = 'md_op_'`, [tenant]);
+      const after = await request(port, "GET", "/grants", undefined, { cookie: `maydo_session=${cookie}` });
+      assert.equal(after.status, 401);
+      assert.doesNotMatch(after.text, /org_console/);
+    } finally {
+      server.close();
+    }
   });
 });
 
@@ -625,7 +836,12 @@ function request(
   path: string,
   body?: Buffer | string,
   headers: Record<string, string> = {},
-): Promise<{ status: number; json: { status?: string; reason?: string; error?: string; allow?: boolean } }> {
+): Promise<{
+  status: number;
+  text: string;
+  headers: http.IncomingHttpHeaders;
+  json: { status?: string; reason?: string; error?: string; allow?: boolean };
+}> {
   return new Promise((resolve, reject) => {
     const payload = body === undefined ? null : Buffer.isBuffer(body) ? body : Buffer.from(body);
     const req = http.request(
@@ -641,11 +857,24 @@ function request(
         res.on("data", (chunk: Buffer) => chunks.push(chunk));
         res.on("end", () => {
           const text = Buffer.concat(chunks).toString("utf8");
-          resolve({ status: res.statusCode ?? 0, json: text ? (JSON.parse(text) as Record<string, string>) : {} });
+          let json: { status?: string; reason?: string; error?: string; allow?: boolean } = {};
+          if (text) {
+            try {
+              json = JSON.parse(text) as { status?: string; reason?: string; error?: string; allow?: boolean };
+            } catch {
+              json = {};
+            }
+          }
+          resolve({ status: res.statusCode ?? 0, text, headers: res.headers, json });
         });
       },
     );
     req.on("error", reject);
     req.end(payload ?? undefined);
   });
+}
+
+function cookieValue(header: string | string[] | undefined): string {
+  const line = Array.isArray(header) ? header[0] : header;
+  return /maydo_session=([^;]+)/.exec(line ?? "")?.[1] ?? "";
 }

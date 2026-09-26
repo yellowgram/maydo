@@ -1,3 +1,25 @@
+/**
+ * Socket address unless the process is explicitly behind a trusted proxy.
+ * Client-supplied X-Forwarded-For is ignored by default. When trusted, the
+ * rightmost hop is the one a single appending proxy added.
+ */
+export function clientIpFromRequest(input: {
+  socketIp?: string | null;
+  forwardedFor?: string | null;
+  trustProxy: boolean;
+}): string | undefined {
+  if (input.trustProxy && input.forwardedFor) {
+    const parts = input.forwardedFor
+      .split(",")
+      .map((part) => part.trim())
+      .filter(Boolean);
+    const chosen = parts[parts.length - 1];
+    if (chosen) return chosen;
+  }
+  const socketIp = input.socketIp?.trim();
+  return socketIp ? socketIp : undefined;
+}
+
 /** IPv4 CIDR match. Empty allowlist means allow all. Non-IPv4 is denied when a list is set. */
 export function ipAllowed(ip: string | undefined, cidrs: string[]): boolean {
   if (!cidrs.length) return true;

@@ -49,7 +49,12 @@ export function evaluateGrants(grants: GrantView[], now: Date): Evaluation {
     return { allow: false, reason: "explicit_revoke", grant_ids: ids(localDenies) };
   }
 
-  const providerRevokes = grants.filter((g) => g.source !== "local" && g.state === "revoked");
+  // precedence allow + revoked is an operator-released row (grants create lifted
+  // the lock). It must not keep suppressing a new local allow. Webhook revokes
+  // stay precedence deny and still suppress non-sticky local allows.
+  const providerRevokes = grants.filter(
+    (g) => g.source !== "local" && g.state === "revoked" && g.precedence_class === "deny",
+  );
   const active = grants.filter((g) => activeAllow(g, now));
   const stickyActive = active.filter((g) => g.source === "local" && g.sticky);
 

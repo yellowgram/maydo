@@ -3,9 +3,10 @@ import type pg from "pg";
 import {
   DEFAULT_AUDIT_DEGRADE_DEPTH,
   evaluateGrants,
+  clientIpFromRequest,
   hashApiKey,
   ipAllowed,
-  keyPrefix,
+  isDecisionKey,
   latencyBucket,
   parsePgTextArray,
   TokenBucket,
@@ -18,6 +19,8 @@ export type ApiOptions = {
   pepper: string;
   auditDegradeDepth?: number;
   ratePerMin?: number;
+  /** When false (default), X-Forwarded-For is ignored. */
+  trustProxy?: boolean;
 };
 
 export function createApiServer(opts: ApiOptions): Server {
@@ -73,7 +76,7 @@ async function handleAllow(
 ): Promise<void> {
   const evaluatedAt = new Date();
   const token = bearer(req);
-  if (!token || keyPrefix(token) !== "md_live_" && keyPrefix(token) !== "md_test_") {
+  if (!token || !isDecisionKey(token)) {
     return send(res, 401, { allow: false, reason: "auth_failed", grant_ids: [], evaluated_at: evaluatedAt.toISOString() });
   }
   let body: { actor?: unknown; action?: unknown };
@@ -104,7 +107,7 @@ async function handleAllow(
       return send(res, 401, { allow: false, reason: "auth_failed", grant_ids: [], evaluated_at: evaluatedAt.toISOString() });
     }
     const allowlist = parsePgTextArray(key.ip_allowlist);
-    if (!ipAllowed(clientIp(req), allowlist)) {
+    if (!ipAllowed(clientIp(req, Boolean(opts.trustProxy)), allowlist)) {
       return send(res, 401, { allow: false, reason: "auth_failed", grant_ids: [], evaluated_at: evaluatedAt.toISOString() });
     }
     if (!bucket.allow(key.key_id, Date.now())) {
@@ -175,10 +178,12 @@ function bearer(req: IncomingMessage): string | null {
   return value.slice(7).trim();
 }
 
-function clientIp(req: IncomingMessage): string | undefined {
-  const forwarded = header(req, "x-forwarded-for");
-  if (forwarded) return forwarded.split(",")[0]?.trim();
-  return req.socket.remoteAddress;
+function clientIp(req: IncomingMessage, trustProxy: boolean): string | undefined {
+  return clientIpFromRequest({
+    socketIp: req.socket.remoteAddress,
+    forwardedFor: header(req, "x-forwarded-for"),
+    trustProxy,
+  });
 }
 
 function header(req: IncomingMessage, name: string): string | undefined {

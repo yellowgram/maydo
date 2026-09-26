@@ -12,6 +12,10 @@ export const KEY_OVERLAP_HOURS = 24;
 export const SDK_CACHE_TTL_MAX_MS = 5000;
 export const DEFAULT_PUBLIC_STATUS_URL = "https://status.yellowgram.dev/maydo";
 
+/** Local defaults. Production startup refuses these. They are not secret. */
+export const DEV_KEY_PEPPER = "dev-pepper-change-me";
+export const DEV_SESSION_SECRET = "dev-session-change-me";
+
 export const DECISION_PREFIXES = ["md_live_", "md_test_"] as const;
 export const OPERATOR_PREFIX = "md_op_";
 

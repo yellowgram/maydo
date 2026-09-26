@@ -26,9 +26,14 @@ export MAYDO_TENANT_ID=<tenant id>
 export DATABASE_URL_API=postgres://maydo_api:maydo_api_dev@127.0.0.1:5432/maydo
 export DATABASE_URL_WORKER=postgres://maydo_worker:maydo_worker_dev@127.0.0.1:5432/maydo
 export MAYDO_KEY_PEPPER=dev-pepper-change-me
+export MAYDO_SESSION_SECRET="$(openssl rand -hex 32)"
 ```
 
-The API role and the worker role are **not** `BYPASSRLS`. Do not point runtime processes at the migrator superuser.
+The API, worker, and console refuse to start if the database role is superuser or `BYPASSRLS`. Do not point runtime processes at the migrator.
+
+The console refuses the public dev session secret. For a local-only console you may instead set `MAYDO_ALLOW_INSECURE_DEV_SECRETS=1` with `MAYDO_SESSION_SECRET=dev-session-change-me`. Never do that when `NODE_ENV=production`.
+
+IP allowlists use the socket address. Set `MAYDO_TRUST_PROXY=1` only when a reverse proxy is the only path to the process; the rightmost `X-Forwarded-For` hop is then the client.
 
 ## Three processes
 

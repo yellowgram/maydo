@@ -1,5 +1,5 @@
 import { AUDIT_RETENTION_DAYS } from "../../../packages/core/src/index.js";
-import { drainAuditBatch, drainOnce, makePool, purgeAudit } from "../../../packages/db/src/index.js";
+import { assertRuntimeRole, drainAuditBatch, drainOnce, makePool, purgeAudit } from "../../../packages/db/src/index.js";
 
 const once = process.argv.includes("--once");
 const databaseUrl = process.env.DATABASE_URL_WORKER ?? process.env.DATABASE_URL;
@@ -9,6 +9,7 @@ if (!databaseUrl) {
 }
 
 const pool = makePool(databaseUrl, "maydo-worker");
+await assertRuntimeRole(pool);
 let lastPurge = 0;
 
 async function tick(): Promise<boolean> {
