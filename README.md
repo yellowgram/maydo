@@ -11,6 +11,30 @@ MayDo is an entitlement kernel. The only hot-path question is `allow(actor, acti
 **Pricing (USD, context):** ~$199 founding setup + ~$79/mo  
 **Contact:** [hello@yellowgram.dev](mailto:hello@yellowgram.dev)
 
+## Run
+
+Start here: [`docs/START_HERE.md`](docs/START_HERE.md). The 60-second path is [`docs/DEMO_60S.md`](docs/DEMO_60S.md).
+
+```bash
+docker compose up -d
+npm install
+npm test
+npm run migrate
+node dist/packages/cli/src/main.js admin bootstrap --name "Founding"
+```
+
+Runtime roles `maydo_api` and `maydo_worker` are not `BYPASSRLS`. The worker sets `maydo.tenant_id` from the outbox row it claimed.
+
+| Path | Role |
+| --- | --- |
+| `apps/api` | `POST /v1/allow`, Stripe + Polar webhooks, `/healthz`, `/readyz` |
+| `apps/worker` | outbox drain, async allow-audit, 30-day retention |
+| `apps/console` | read-mostly operator UI; replay execute stays on the CLI |
+| `packages/sdk-ts` | `@yellowgram/maydo` |
+| `packages/cli` | grants, mapping, replay, audit, keys |
+| `packages/adapters` | Stripe + Polar verify and grant/revoke map |
+| `fixtures/` | pinned provider enums and bodies |
+
 ## Design
 
 Product design lives in [`design/`](design/). Read order:
@@ -24,4 +48,4 @@ Product design lives in [`design/`](design/). Read order:
 7. [`design/DR3.md`](design/DR3.md) — freeze
 8. [`design/LAUNCHGATE_DR4_PACK.md`](design/LAUNCHGATE_DR4_PACK.md) — go/no-go pack
 
-**LaunchGate DR4: APPROVE.** This pull request is design only. Implementation follows in a separate PR against the DR3 freeze (`design/DR3.md`).
+**LaunchGate DR4: APPROVE.** Implementation follows the DR3 freeze. Design history stays in `design/`.

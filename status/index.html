@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>MayDo status</title>
+  <style>
+    body { font: 16px/1.45 ui-sans-serif, system-ui, sans-serif; margin: 40px; color: #1c1917; }
+    .pill { display: inline-block; background: #dcfce7; border: 1px solid #166534; padding: 4px 10px; }
+  </style>
+</head>
+<body>
+  <h1>MayDo</h1>
+  <p class="pill">operational</p>
+  <p>Manual status page for the hosted decision API. States: operational, degraded, outage.</p>
+  <p>During an outage, <code>allow</code> fails closed (<code>maydo_unavailable</code>). Do not wrap the SDK with a fail-open default.</p>
+  <p>This file is the publishable stub for <a href="https://status.yellowgram.dev/maydo">https://status.yellowgram.dev/maydo</a>. Update the pill by hand. It is not an SLA.</p>
+</body>
+</html>

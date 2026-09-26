@@ -1,0 +1,15 @@
+{
+  "type": "order.refunded",
+  "timestamp": "2026-09-26T16:30:00Z",
+  "data": {
+    "id": "ord_partial_fixture",
+    "status": "partially_refunded",
+    "customer_id": "cus_fixture",
+    "product_id": "prod_fixture",
+    "subscription_id": "sub_partial",
+    "metadata": {
+      "maydo_actor": "org_fixture",
+      "maydo_action": "export.pdf"
+    }
+  }
+}

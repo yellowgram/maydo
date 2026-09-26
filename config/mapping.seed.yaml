@@ -1,0 +1,29 @@
+# Founding seed. Inserted only when missing — database rows win at runtime.
+# revoke_on_past_due stays false. Do not map invoice.paid.
+mappings:
+  - provider: polar
+    event_type: order.paid
+    actions: [export.pdf]
+    enabled: true
+    product_or_price_id: null
+    revoke_on_past_due: false
+  - provider: polar
+    event_type: order.refunded
+    actions: [export.pdf]
+    enabled: true
+    revoke_on_past_due: false
+  - provider: polar
+    event_type: subscription.revoked
+    actions: [export.pdf]
+    enabled: true
+    revoke_on_past_due: false
+  - provider: stripe
+    event_type: checkout.session.completed
+    actions: [export.pdf]
+    enabled: true
+    revoke_on_past_due: false
+  - provider: stripe
+    event_type: customer.subscription.deleted
+    actions: [export.pdf]
+    enabled: true
+    revoke_on_past_due: false

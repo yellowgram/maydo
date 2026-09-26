@@ -1,0 +1,11 @@
+{
+  "provider": "stripe",
+  "confirmed": "2026-09-26",
+  "grant": ["checkout.session.completed", "checkout.session.async_payment_succeeded"],
+  "revoke": ["customer.subscription.deleted"],
+  "revoke_when_status": {
+    "customer.subscription.updated": ["canceled", "unpaid", "incomplete_expired"]
+  },
+  "noop": ["invoice.paid", "customer.subscription.updated", "charge.refunded"],
+  "notes": "invoice.paid is ignored. customer.subscription.updated revokes only for the pinned statuses. charge.refunded is off until an operator mapping says otherwise, and even then MayDo does not prorate."
+}

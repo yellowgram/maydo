@@ -1,0 +1,651 @@
+import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
+import http from "node:http";
+import { after, before, describe, test } from "node:test";
+import pg from "pg";
+import { hashApiKey, mintKey, signPolar, signStripe } from "../packages/core/src/index.js";
+import { createApiServer, listen } from "../apps/api/src/server.js";
+import { applyPayload, drainOnce, makePool, migrate, replayExecute, withTenant } from "../packages/db/src/index.js";
+import { createLocalGrant, listGrantsForAllow } from "../packages/db/src/grants.js";
+import { evaluateGrants } from "../packages/core/src/evaluate.js";
+import { createClient } from "../packages/sdk-ts/src/index.js";
+
+const MIGRATOR = process.env.DATABASE_URL ?? "postgres://postgres:postgres@127.0.0.1:5432/maydo";
+const API_URL = process.env.DATABASE_URL_API ?? "postgres://maydo_api:maydo_api_dev@127.0.0.1:5432/maydo";
+const WORKER_URL = process.env.DATABASE_URL_WORKER ?? "postgres://maydo_worker:maydo_worker_dev@127.0.0.1:5432/maydo";
+const PEPPER = process.env.MAYDO_KEY_PEPPER ?? "dev-pepper-change-me";
+
+const migrator = new pg.Pool({ connectionString: MIGRATOR, max: 4 });
+const apiPool = makePool(API_URL, "maydo-test-api");
+const workerPool = makePool(WORKER_URL, "maydo-test-worker");
+
+before(async () => {
+  await migrate(MIGRATOR);
+  await truncate();
+});
+
+after(async () => {
+  await migrator.end();
+  await apiPool.end();
+  await workerPool.end();
+});
+
+describe("postgres kernel", { concurrency: 1 }, () => {
+  test("worker role is not BYPASSRLS and a forgotten GUC cannot write another tenant", async () => {
+    const roles = await migrator.query<{ rolname: string; rolbypassrls: boolean; rolsuper: boolean }>(
+      `SELECT rolname, rolbypassrls, rolsuper FROM pg_roles WHERE rolname IN ('maydo_api', 'maydo_worker')`,
+    );
+    assert.equal(roles.rowCount, 2);
+    for (const role of roles.rows) {
+      assert.equal(role.rolbypassrls, false, role.rolname);
+      assert.equal(role.rolsuper, false, role.rolname);
+    }
+
+    const tenantA = await insertTenant("A");
+    const tenantB = await insertTenant("B");
+    const grantA = await insertGrant(tenantA, "actor-a", "export.pdf", "local", "bind-a");
+    const grantB = await insertGrant(tenantB, "actor-b", "export.pdf", "local", "bind-b");
+
+    const client = await workerPool.connect();
+    try {
+      await client.query("BEGIN");
+      const forgotten = await client.query(`UPDATE maydo.grants SET note = 'pwned' WHERE id = $1`, [grantB]);
+      assert.equal(forgotten.rowCount, 0);
+      await client.query("ROLLBACK");
+
+      await client.query("BEGIN");
+      await client.query(`SELECT set_config('maydo.tenant_id', $1, true)`, [tenantA]);
+      const crossed = await client.query(`UPDATE maydo.grants SET note = 'pwned' WHERE tenant_id = $1`, [tenantB]);
+      assert.equal(crossed.rowCount, 0);
+      const own = await client.query(`UPDATE maydo.grants SET note = 'touched' WHERE tenant_id = $1 AND id = $2`, [
+        tenantA,
+        grantA,
+      ]);
+      assert.equal(own.rowCount, 1);
+      await client.query("ROLLBACK");
+
+      await client.query("BEGIN");
+      await assert.rejects(
+        applyPayload(client, tenantB, {
+          intent: "grant",
+          actor: "victim",
+          action: "export.pdf",
+          source: "stripe",
+          binding_id: "forged",
+        }),
+      );
+      await client.query("ROLLBACK");
+    } finally {
+      client.release();
+    }
+
+    const notes = await migrator.query<{ id: string; note: string | null }>(
+      `SELECT id, note FROM maydo.grants WHERE id = ANY($1::uuid[])`,
+      [[grantA, grantB]],
+    );
+    for (const row of notes.rows) assert.notEqual(row.note, "pwned");
+    const forged = await migrator.query(`SELECT count(*)::int AS n FROM maydo.grants WHERE binding_id = 'forged'`);
+    assert.equal(forged.rows[0].n, 0);
+  });
+
+  test("drain sets the tenant GUC from the outbox row, ignoring a decoy in the payload", async () => {
+    await truncate();
+    const tenantA = await insertTenant("drain-a");
+    const tenantB = await insertTenant("drain-b");
+    const grantB = await insertGrant(tenantB, "actor-b", "export.pdf", "stripe", "sub_b");
+    await migrator.query(
+      `INSERT INTO maydo.outbox (
+         tenant_id, expansion_set_id, provider, provider_event_id, adapter, idempotency_key, state, payload
+       ) VALUES ($1, gen_random_uuid(), 'stripe', 'evt_drain', 'grant', 'stripe|evt_drain|grant:export.pdf', 'pending', $2::jsonb)`,
+      [
+        tenantA,
+        JSON.stringify({
+          intent: "grant",
+          actor: "actor-a",
+          action: "export.pdf",
+          source: "stripe",
+          binding_id: "sub_a",
+          source_event_id: "evt_drain",
+          event_ts: new Date().toISOString(),
+          decoy_tenant_id: tenantB,
+        }),
+      ],
+    );
+    const drained = await drainOnce(workerPool);
+    assert.equal(drained, true);
+    const grantsA = await migrator.query<{ tenant_id: string }>(
+      `SELECT tenant_id FROM maydo.grants WHERE binding_id = 'sub_a'`,
+    );
+    assert.equal(grantsA.rowCount, 1);
+    assert.equal(grantsA.rows[0].tenant_id, tenantA);
+    const stillB = await migrator.query<{ note: string | null }>(`SELECT note FROM maydo.grants WHERE id = $1`, [grantB]);
+    assert.equal(stillB.rows[0].note, null);
+  });
+
+  test("duplicate stripe webhook is 200 and one grant; bad signature and livemode are 400", async () => {
+    await truncate();
+    const tenant = await insertTenant("stripe");
+    const secret = "whsec_test_stripe";
+    const token = "stripetoken123";
+    const decision = mintKey("md_test_");
+    await insertKey(tenant, decision.token);
+    await migrator.query(
+      `INSERT INTO maydo.webhook_endpoints (tenant_id, provider, ingest_token, secret, livemode)
+       VALUES ($1, 'stripe', $2, $3, false)`,
+      [tenant, token, secret],
+    );
+    const server = createApiServer({ pool: apiPool, pepper: PEPPER, ratePerMin: 10_000 });
+    await listen(server, 0);
+    const port = (server.address() as { port: number }).port;
+    try {
+      const body = Buffer.from(
+        JSON.stringify({
+          id: "evt_once",
+          object: "event",
+          type: "checkout.session.completed",
+          livemode: false,
+          created: Math.floor(Date.now() / 1000),
+          data: {
+            object: {
+              id: "cs_once",
+              object: "checkout.session",
+              customer: "cus_once",
+              subscription: "sub_once",
+              metadata: { maydo_actor: "org_once", maydo_action: "export.pdf" },
+            },
+          },
+        }),
+      );
+      const sig = signStripe(body, secret, Math.floor(Date.now() / 1000));
+      const first = await request(port, "POST", `/v1/webhooks/stripe/${token}`, body, { "stripe-signature": sig });
+      const second = await request(port, "POST", `/v1/webhooks/stripe/${token}`, body, { "stripe-signature": sig });
+      assert.equal(first.status, 200);
+      assert.equal(first.json.status, "ok");
+      assert.equal(second.status, 200);
+      assert.equal(second.json.status, "duplicate");
+
+      const bad = await request(port, "POST", `/v1/webhooks/stripe/${token}`, body, { "stripe-signature": "t=1,v1=nope" });
+      assert.equal(bad.status, 400);
+
+      const liveBody = Buffer.from(body.toString("utf8").replace('"livemode":false', '"livemode":true').replace("evt_once", "evt_live"));
+      const liveSig = signStripe(liveBody, secret, Math.floor(Date.now() / 1000));
+      const live = await request(port, "POST", `/v1/webhooks/stripe/${token}`, liveBody, { "stripe-signature": liveSig });
+      assert.equal(live.status, 400);
+      assert.equal(live.json.error, "livemode_mismatch");
+
+      await drainAll();
+      const grants = await migrator.query(`SELECT * FROM maydo.grants WHERE tenant_id = $1`, [tenant]);
+      assert.equal(grants.rowCount, 1);
+
+      const allowed = await request(
+        port,
+        "POST",
+        "/v1/allow",
+        JSON.stringify({ actor: "org_once", action: "export.pdf" }),
+        { authorization: `Bearer ${decision.token}`, "content-type": "application/json" },
+      );
+      assert.equal(allowed.status, 200);
+      assert.equal(allowed.json.allow, true);
+      assert.equal(allowed.json.reason, "grant_active");
+
+      const sdk = createClient({ apiKey: decision.token, baseUrl: `http://127.0.0.1:${port}` });
+      const viaSdk = await sdk.allow({ actor: "org_once", action: "export.pdf" });
+      assert.equal(viaSdk.allow, true);
+    } finally {
+      server.close();
+    }
+  });
+
+  test("multi-action expansion reports an incomplete set until every row drains", async () => {
+    await truncate();
+    const tenant = await insertTenant("multi");
+    const { token, secret } = await polarEndpoint(tenant);
+    const server = createApiServer({ pool: apiPool, pepper: PEPPER });
+    await listen(server, 0);
+    const port = (server.address() as { port: number }).port;
+    try {
+      const body = Buffer.from(
+        JSON.stringify({
+          type: "order.paid",
+          timestamp: new Date().toISOString(),
+          data: {
+            id: "ord_multi",
+            status: "paid",
+            subscription_id: "sub_multi",
+            metadata: { maydo_actor: "org_multi", maydo_actions: ["export.pdf", "admin.seat"] },
+          },
+        }),
+      );
+      const ts = Math.floor(Date.now() / 1000);
+      const posted = await request(port, "POST", `/v1/webhooks/polar/${token}`, body, polarHeaders(body, secret, "wh_multi", ts));
+      assert.equal(posted.status, 200);
+      assert.equal(posted.json.status, "ok");
+      const sets = await migrator.query<{ expansion_set_id: string; n: number }>(
+        `SELECT expansion_set_id, count(*)::int AS n FROM maydo.outbox WHERE tenant_id = $1 GROUP BY expansion_set_id`,
+        [tenant],
+      );
+      assert.equal(sets.rowCount, 1);
+      assert.equal(sets.rows[0].n, 2);
+      assert.equal(await drainOnce(workerPool), true);
+      const mid = await withTenant(apiPool, tenant, (client) =>
+        client.query(
+          `SELECT expansion_set_id FROM maydo.outbox WHERE tenant_id = $1
+           GROUP BY expansion_set_id
+           HAVING count(*) FILTER (WHERE state = 'done') < count(*)`,
+          [tenant],
+        ),
+      );
+      assert.equal(mid.rowCount, 1);
+      assert.equal(await drainOnce(workerPool), true);
+      const done = await withTenant(apiPool, tenant, (client) =>
+        client.query(
+          `SELECT expansion_set_id FROM maydo.outbox WHERE tenant_id = $1
+           GROUP BY expansion_set_id
+           HAVING count(*) FILTER (WHERE state = 'done') < count(*)`,
+          [tenant],
+        ),
+      );
+      assert.equal(done.rowCount, 0);
+      const grants = await migrator.query(`SELECT action FROM maydo.grants WHERE tenant_id = $1 AND state = 'active'`, [tenant]);
+      assert.deepEqual(grants.rows.map((row: { action: string }) => row.action).sort(), ["admin.seat", "export.pdf"]);
+    } finally {
+      server.close();
+    }
+  });
+
+  test("partial refund revokes every action on the binding", async () => {
+    await truncate();
+    const tenant = await insertTenant("refund");
+    const { token, secret } = await polarEndpoint(tenant);
+    const server = createApiServer({ pool: apiPool, pepper: PEPPER });
+    await listen(server, 0);
+    const port = (server.address() as { port: number }).port;
+    try {
+      await postPolar(port, token, secret, "wh_pay", {
+        type: "order.paid",
+        data: {
+          id: "ord_ref",
+          status: "paid",
+          subscription_id: "sub_ref",
+          metadata: { maydo_actor: "org_ref", maydo_actions: ["export.pdf", "admin.seat"] },
+        },
+      });
+      await drainAll();
+      await postPolar(port, token, secret, "wh_refund", {
+        type: "order.refunded",
+        data: {
+          id: "ord_ref",
+          status: "partially_refunded",
+          subscription_id: "sub_ref",
+          metadata: { maydo_actor: "org_ref", maydo_action: "export.pdf" },
+        },
+      });
+      await drainAll();
+      const grants = await migrator.query<{ action: string; state: string }>(
+        `SELECT action, state FROM maydo.grants WHERE tenant_id = $1 AND source = 'polar' ORDER BY action`,
+        [tenant],
+      );
+      assert.equal(grants.rowCount, 2);
+      assert.equal(grants.rows.every((row) => row.state === "revoked"), true);
+    } finally {
+      server.close();
+    }
+  });
+
+  test("unresolved actor becomes a dead letter and no grant", async () => {
+    await truncate();
+    const tenant = await insertTenant("unresolved");
+    const { token, secret } = await polarEndpoint(tenant);
+    const server = createApiServer({ pool: apiPool, pepper: PEPPER });
+    await listen(server, 0);
+    const port = (server.address() as { port: number }).port;
+    try {
+      const response = await postPolar(port, token, secret, "wh_nobody", {
+        type: "order.paid",
+        data: { id: "ord_nobody", status: "paid", subscription_id: "sub_nobody", metadata: {} },
+      });
+      assert.equal(response.status, 200);
+      assert.equal(response.json.status, "dead");
+      assert.equal(response.json.reason, "actor_unresolved");
+      const letters = await migrator.query(`SELECT reason FROM maydo.dead_letters WHERE tenant_id = $1`, [tenant]);
+      assert.equal(letters.rowCount, 1);
+      assert.equal(letters.rows[0].reason, "actor_unresolved");
+      const grants = await migrator.query(`SELECT count(*)::int AS n FROM maydo.grants WHERE tenant_id = $1`, [tenant]);
+      assert.equal(grants.rows[0].n, 0);
+      const outbox = await migrator.query(`SELECT count(*)::int AS n FROM maydo.outbox WHERE tenant_id = $1`, [tenant]);
+      assert.equal(outbox.rows[0].n, 0);
+    } finally {
+      server.close();
+    }
+  });
+
+  test("sticky requires expiry, provider revoke skips it, and local revoke wins", async () => {
+    await truncate();
+    const tenant = await insertTenant("sticky");
+    await withTenant(apiPool, tenant, async (client) => {
+      await assert.rejects(
+        createLocalGrant(client, {
+          tenantId: tenant,
+          actor: "org_sticky",
+          action: "export.pdf",
+          bindingId: "local_sticky",
+          sticky: true,
+          expiresAt: null,
+          note: null,
+          createdBy: "test",
+        }),
+        /expires_at/,
+      );
+      const tooFar = new Date(Date.now() + 91 * 24 * 60 * 60 * 1000);
+      await assert.rejects(
+        createLocalGrant(client, {
+          tenantId: tenant,
+          actor: "org_sticky",
+          action: "export.pdf",
+          bindingId: "local_sticky",
+          sticky: true,
+          expiresAt: tooFar,
+          note: null,
+          createdBy: "test",
+        }),
+      );
+      const created = await createLocalGrant(client, {
+        tenantId: tenant,
+        actor: "org_sticky",
+        action: "export.pdf",
+        bindingId: "local_sticky",
+        sticky: true,
+        expiresAt: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000),
+        note: "pilot",
+        createdBy: "test",
+      });
+      const plain = await createLocalGrant(client, {
+        tenantId: tenant,
+        actor: "org_plain",
+        action: "export.pdf",
+        bindingId: "local_plain",
+        sticky: false,
+        expiresAt: null,
+        note: null,
+        createdBy: "test",
+      });
+      assert.equal(created.sticky, true);
+      assert.equal(plain.sticky, false);
+    });
+
+    const { token, secret } = await polarEndpoint(tenant);
+    const server = createApiServer({ pool: apiPool, pepper: PEPPER });
+    await listen(server, 0);
+    const port = (server.address() as { port: number }).port;
+    try {
+      await postPolar(port, token, secret, "wh_revoke_sticky", {
+        type: "subscription.revoked",
+        data: {
+          id: "sub_sticky",
+          status: "revoked",
+          metadata: { maydo_actor: "org_sticky", maydo_action: "export.pdf" },
+        },
+      });
+      await postPolar(port, token, secret, "wh_revoke_plain", {
+        type: "subscription.revoked",
+        data: {
+          id: "sub_plain",
+          status: "revoked",
+          metadata: { maydo_actor: "org_plain", maydo_action: "export.pdf" },
+        },
+      });
+      await drainAll();
+      const sticky = await loadDecision(tenant, "org_sticky", "export.pdf");
+      assert.equal(sticky.allow, true, "sticky survives provider revoke");
+      const plain = await loadDecision(tenant, "org_plain", "export.pdf");
+      assert.equal(plain.allow, false);
+      assert.equal(plain.reason, "explicit_revoke");
+
+      await withTenant(apiPool, tenant, async (client) => {
+        const row = await client.query<{ id: string }>(
+          `SELECT id FROM maydo.grants WHERE tenant_id = $1 AND actor = 'org_sticky' AND source = 'local'`,
+          [tenant],
+        );
+        const { revokeGrant } = await import("../packages/db/src/grants.js");
+        await revokeGrant(client, tenant, row.rows[0].id, "test");
+      });
+      const after = await loadDecision(tenant, "org_sticky", "export.pdf");
+      assert.equal(after.allow, false);
+      assert.equal(after.reason, "explicit_revoke");
+    } finally {
+      server.close();
+    }
+  });
+
+  test("allow fails closed when the database is unreachable", async () => {
+    const dead = makePool("postgres://maydo_api:maydo_api_dev@127.0.0.1:1/maydo", "dead");
+    const server = createApiServer({ pool: dead, pepper: PEPPER });
+    await listen(server, 0);
+    const port = (server.address() as { port: number }).port;
+    try {
+      const response = await request(
+        port,
+        "POST",
+        "/v1/allow",
+        JSON.stringify({ actor: "a", action: "b" }),
+        { authorization: "Bearer md_test_whatever", "content-type": "application/json" },
+      );
+      assert.equal(response.status, 503);
+      assert.equal(response.json.allow, false);
+      assert.equal(response.json.reason, "maydo_unavailable");
+    } finally {
+      server.close();
+      await dead.end();
+    }
+  });
+
+  test("webhook database failure is HTTP 500", async () => {
+    await truncate();
+    const tenant = await insertTenant("boom");
+    const secret = "whsec_boom";
+    const token = "boomtoken";
+    await migrator.query(
+      `INSERT INTO maydo.webhook_endpoints (tenant_id, provider, ingest_token, secret, livemode)
+       VALUES ($1, 'stripe', $2, $3, false)`,
+      [tenant, token, secret],
+    );
+    await migrator.query(`REVOKE INSERT ON maydo.provider_events FROM maydo_api`);
+    const server = createApiServer({ pool: apiPool, pepper: PEPPER });
+    await listen(server, 0);
+    const port = (server.address() as { port: number }).port;
+    try {
+      const body = Buffer.from(
+        JSON.stringify({
+          id: "evt_boom",
+          type: "checkout.session.completed",
+          livemode: false,
+          created: Math.floor(Date.now() / 1000),
+          data: { object: { id: "cs_boom", metadata: { maydo_actor: "a", maydo_action: "b" } } },
+        }),
+      );
+      const response = await request(port, "POST", `/v1/webhooks/stripe/${token}`, body, {
+        "stripe-signature": signStripe(body, secret, Math.floor(Date.now() / 1000)),
+      });
+      assert.equal(response.status, 500);
+      assert.equal(response.json.error, "ingest_failed");
+    } finally {
+      server.close();
+      await migrator.query(`GRANT INSERT ON maydo.provider_events TO maydo_api`);
+    }
+  });
+
+  test("cli rejects sticky without expires_at", () => {
+    const result = spawnSync(
+      process.execPath,
+      ["dist/packages/cli/src/main.js", "grants", "create", "--actor", "a", "--action", "b", "--sticky"],
+      {
+        env: { ...process.env, DATABASE_URL_API: API_URL, MAYDO_TENANT_ID: "00000000-0000-0000-0000-000000000000", MAYDO_KEY_PEPPER: PEPPER },
+        encoding: "utf8",
+      },
+    );
+    assert.notEqual(result.status, 0);
+    assert.match(`${result.stderr}`, /sticky_expires_required|expires_at/);
+  });
+
+  test("poison outbox dead-letters and replay execute reopens it once", async () => {
+    await truncate();
+    const tenant = await insertTenant("replay");
+    await migrator.query(
+      `INSERT INTO maydo.outbox (
+         tenant_id, expansion_set_id, provider, provider_event_id, adapter, idempotency_key, state, payload
+       ) VALUES ($1, gen_random_uuid(), 'polar', 'evt_poison', 'grant', 'polar|evt_poison|grant:export.pdf', 'pending', '{"intent":"grant"}'::jsonb)`,
+      [tenant],
+    );
+    assert.equal(await drainOnce(workerPool), true);
+    const dead = await migrator.query<{ id: string; reason: string; outbox_id: string }>(
+      `SELECT id, reason, outbox_id FROM maydo.dead_letters WHERE tenant_id = $1`,
+      [tenant],
+    );
+    assert.equal(dead.rowCount, 1);
+    assert.match(dead.rows[0].reason, /incomplete payload/);
+    const reopened = await withTenant(apiPool, tenant, (client) => replayExecute(client, tenant, dead.rows[0].id));
+    assert.equal(reopened.state, "pending");
+    await assert.rejects(withTenant(apiPool, tenant, (client) => replayExecute(client, tenant, dead.rows[0].id)));
+    const grants = await migrator.query(`SELECT count(*)::int AS n FROM maydo.grants WHERE tenant_id = $1`, [tenant]);
+    assert.equal(grants.rows[0].n, 0);
+  });
+
+  test("only expired grants use the expired reason", async () => {
+    await truncate();
+    const tenant = await insertTenant("expired");
+    await migrator.query(
+      `INSERT INTO maydo.grants (
+         tenant_id, actor, action, source, binding_id, state, precedence_class, expires_at
+       ) VALUES ($1, 'org_old', 'export.pdf', 'local', 'local_old', 'active', 'allow', now() - interval '1 day')`,
+      [tenant],
+    );
+    const decision = await loadDecision(tenant, "org_old", "export.pdf");
+    assert.equal(decision.reason, "expired");
+    assert.equal(decision.allow, false);
+  });
+});
+
+async function truncate(): Promise<void> {
+  await migrator.query(`
+    TRUNCATE
+      maydo.operator_audit,
+      maydo.allow_audit,
+      maydo.audit_queue,
+      maydo.dead_letters,
+      maydo.outbox,
+      maydo.grants,
+      maydo.provider_events,
+      maydo.webhook_http_log,
+      maydo.mapping_config,
+      maydo.actor_maps,
+      maydo.product_action_maps,
+      maydo.api_keys,
+      maydo.webhook_endpoints,
+      maydo.tenants
+    RESTART IDENTITY CASCADE
+  `);
+}
+
+async function insertTenant(name: string): Promise<string> {
+  const result = await migrator.query<{ id: string }>(
+    `INSERT INTO maydo.tenants (name, status) VALUES ($1, 'active') RETURNING id`,
+    [name],
+  );
+  return result.rows[0].id;
+}
+
+async function insertGrant(tenantId: string, actor: string, action: string, source: string, binding: string): Promise<string> {
+  const result = await migrator.query<{ id: string }>(
+    `INSERT INTO maydo.grants (tenant_id, actor, action, source, binding_id, state, precedence_class)
+     VALUES ($1, $2, $3, $4, $5, 'active', 'allow') RETURNING id`,
+    [tenantId, actor, action, source, binding],
+  );
+  return result.rows[0].id;
+}
+
+async function insertKey(tenantId: string, token: string): Promise<void> {
+  const minted = token.startsWith("md_test_") ? token : token;
+  await migrator.query(
+    `INSERT INTO maydo.api_keys (tenant_id, prefix, key_hash, scopes, last_four)
+     VALUES ($1, 'md_test_', $2, '{allow}', $3)`,
+    [tenantId, hashApiKey(minted, PEPPER), minted.slice(-4)],
+  );
+}
+
+async function polarEndpoint(tenantId: string): Promise<{ token: string; secret: string }> {
+  const raw = Buffer.from(`polar-secret-${tenantId}`);
+  const secret = `whsec_${raw.toString("base64")}`;
+  const token = `polar${tenantId.replaceAll("-", "").slice(0, 20)}`;
+  await migrator.query(
+    `INSERT INTO maydo.webhook_endpoints (tenant_id, provider, ingest_token, secret, livemode)
+     VALUES ($1, 'polar', $2, $3, false)`,
+    [tenantId, token, secret],
+  );
+  return { token, secret };
+}
+
+function polarHeaders(body: Buffer, secret: string, id: string, timestamp: number): Record<string, string> {
+  return {
+    "webhook-id": id,
+    "webhook-timestamp": String(timestamp),
+    "webhook-signature": signPolar(body, secret, id, timestamp),
+    "content-type": "application/json",
+  };
+}
+
+async function postPolar(
+  port: number,
+  token: string,
+  secret: string,
+  id: string,
+  payload: Record<string, unknown>,
+): Promise<{ status: number; json: { status?: string; reason?: string; error?: string; allow?: boolean } }> {
+  const body = Buffer.from(JSON.stringify({ timestamp: new Date().toISOString(), ...payload }));
+  return request(port, "POST", `/v1/webhooks/polar/${token}`, body, polarHeaders(body, secret, id, Math.floor(Date.now() / 1000)));
+}
+
+async function drainAll(): Promise<void> {
+  for (let i = 0; i < 20; i++) {
+    const drained = await drainOnce(workerPool);
+    if (!drained) return;
+  }
+  throw new Error("outbox did not drain");
+}
+
+async function loadDecision(tenantId: string, actor: string, action: string) {
+  return withTenant(apiPool, tenantId, async (client) => {
+    const grants = await listGrantsForAllow(client, tenantId, actor, action);
+    return evaluateGrants(grants, new Date());
+  });
+}
+
+function request(
+  port: number,
+  method: string,
+  path: string,
+  body?: Buffer | string,
+  headers: Record<string, string> = {},
+): Promise<{ status: number; json: { status?: string; reason?: string; error?: string; allow?: boolean } }> {
+  return new Promise((resolve, reject) => {
+    const payload = body === undefined ? null : Buffer.isBuffer(body) ? body : Buffer.from(body);
+    const req = http.request(
+      {
+        hostname: "127.0.0.1",
+        port,
+        method,
+        path,
+        headers: { ...headers, ...(payload ? { "content-length": String(payload.length) } : {}) },
+      },
+      (res) => {
+        const chunks: Buffer[] = [];
+        res.on("data", (chunk: Buffer) => chunks.push(chunk));
+        res.on("end", () => {
+          const text = Buffer.concat(chunks).toString("utf8");
+          resolve({ status: res.statusCode ?? 0, json: text ? (JSON.parse(text) as Record<string, string>) : {} });
+        });
+      },
+    );
+    req.on("error", reject);
+    req.end(payload ?? undefined);
+  });
+}
