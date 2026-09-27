@@ -2,7 +2,7 @@
 
 **URL:** https://status.yellowgram.dev/maydo
 
-**Polar-ready:** a listing may go light only after this URL is **actually live** (it serves `status/index.html`), `release/maydo-0.1.0.zip` is on `main`, and a GitHub Release has that zip attached. Founder go-live is already given via the Chief of Staff. CoS publishes under that standing go once those three are true. This repository does not deploy the status host. Until the URL responds with that page, do not tell a buyer the status page is live, and do not list on Polar. See [`POLAR_DELIVERABLES.md`](POLAR_DELIVERABLES.md).
+**Polar-ready:** the live kit is the sealed `release/maydo-0.1.0.zip` on tag `v0.1.0`. The next downloadable is `release/maydo-0.1.1.zip`, swapped only in the License Gate freeze→land window after LaunchGate CR and merge. This repository does not deploy the status host. See [`POLAR_DELIVERABLES.md`](POLAR_DELIVERABLES.md). Public license: PolyForm Noncommercial 1.0.0 (`LICENSE`). Commercial use: Suthirth Commercial Grant (`COMMERCIAL_GRANT.md`). Claims: source-available = true. OSI open source = false. Soft-WTP is off.
 
 `maydo status` prints that URL and, when `API_BASE_URL` is set, the local `/healthz` result.
 

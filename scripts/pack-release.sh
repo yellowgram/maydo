@@ -2,6 +2,7 @@
 # Buyer zip of HEAD for MayDo.
 # Archives the current commit, omits docs/CHECKSUMS.md and release/,
 # refuses any other dirty path, pins entry times, and writes docs/CHECKSUMS.md.
+# Versions the new zip from package.json. Never rewrites a sealed historical zip.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -11,6 +12,7 @@ python3 - "$ROOT" <<'PY'
 import hashlib
 import io
 import os
+import re
 import subprocess
 import sys
 import tarfile
@@ -32,6 +34,49 @@ out_rel = Path("release") / f"{slug}.zip"
 stamp = (2026, 9, 26, 0, 0, 0)
 comment = slug.encode("ascii")
 
+# Historical buyer zips. pack-release must not rewrite these bytes.
+SEALED = {
+    "release/maydo-0.1.0.zip": "5aaba05786a24e23977e1646aca2a0915c5de28b3f9b98d440b245e70027586e",
+}
+
+
+def verify_sealed() -> None:
+    current = out_rel.as_posix()
+    if current in SEALED:
+        sys.exit(f"pack-release: refuse to rewrite sealed zip {current}")
+    for rel, expected in SEALED.items():
+        path = root / rel
+        if not path.is_file():
+            sys.exit(f"pack-release: sealed zip missing: {rel}")
+        actual = hashlib.sha256(path.read_bytes()).hexdigest()
+        if actual != expected:
+            sys.exit(
+                f"pack-release: sealed zip digest changed for {rel}: {actual} != {expected}"
+            )
+
+
+def historical_rows(current_rel: str) -> list[tuple[str, str]]:
+    text = ""
+    checksums_path = root / "docs" / "CHECKSUMS.md"
+    if checksums_path.is_file():
+        text = checksums_path.read_text()
+    found: dict[str, str] = {}
+    for match in re.finditer(r"`(release/[^`]+)`\s*\|\s*`([0-9a-f]{64})`", text):
+        rel, row_digest = match.group(1), match.group(2)
+        if rel == current_rel:
+            continue
+        if rel in SEALED and row_digest != SEALED[rel]:
+            sys.exit(
+                f"pack-release: checksum row disagrees with sealed digest for {rel}"
+            )
+        found[rel] = row_digest
+    for rel, row_digest in SEALED.items():
+        found[rel] = row_digest
+    return [(rel, found[rel]) for rel in sorted(found)]
+
+
+verify_sealed()
+
 REQUIRED = [
     ".env.example",
     "LICENSE",
@@ -42,6 +87,7 @@ REQUIRED = [
     "CHANGELOG.md",
     "docs/START_HERE.md",
     "docs/DEMO_60S.md",
+    "docs/COMMERCIAL_GRANT.md",
     "docs/POLAR_DELIVERABLES.md",
     "docs/REFUND_GLOSSARY.md",
     "packages/db/migrations/001_init.sql",
@@ -211,16 +257,28 @@ with zipfile.ZipFile(io.BytesIO(blob)) as zf:
             sys.exit(f"pack-release: zip missing {rel}")
 
 digest = hashlib.sha256(blob).hexdigest()
+verify_sealed()
 out_rel.parent.mkdir(parents=True, exist_ok=True)
 (root / out_rel).write_bytes(blob)
+verify_sealed()
+
+current_rel = out_rel.as_posix()
+rows = [(current_rel, digest)] + historical_rows(current_rel)
+table = "\n".join(f"| `{rel}` | `{row_digest}` |" for rel, row_digest in rows)
+sealed_notes = "\n".join(
+    f"- `{rel}` stays sealed. SHA-256 must remain `{row_digest}`."
+    for rel, row_digest in historical_rows(current_rel)
+)
 
 checksums = f"""# Checksums
 
-SHA-256 of the buyer zip. Paste this hex into the Polar file checksum field.
+SHA-256 of buyer zips. For the current tag, paste that row's hex into the Polar file checksum field. Sealed rows are historical. Do not regenerate those zips.
 
 | File | SHA-256 |
 | --- | --- |
-| `release/{slug}.zip` | `{digest}` |
+{table}
+
+## Current pack
 
 - Version: `{version}`
 - Zip path: `release/{slug}.zip`
@@ -230,7 +288,11 @@ SHA-256 of the buyer zip. Paste this hex into the Polar file checksum field.
 - Built by `scripts/pack-release.sh` from `git archive` of HEAD.
 - The zip omits this file and `release/`.
 
-Regenerate with `npm run pack:release`. A clean tree must succeed. The only dirty paths the script allows are this file and `release/`.
+## Sealed
+
+{sealed_notes}
+
+`npm run pack:release` writes `release/{slug}.zip` from `package.json` and refreshes that row only. A clean tree must succeed. The only dirty paths the script allows are this file and `release/`.
 """
 (root / "docs" / "CHECKSUMS.md").write_text(checksums)
 print(f"wrote {out_rel}")

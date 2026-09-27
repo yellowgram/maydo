@@ -2,7 +2,7 @@
 
 This is an operations policy. It is **not** an SLA, not an availability mode, and not a reason to fail open.
 
-**Commercial lock:** $149 USD once for one organization, perpetual self-host. Launch price $99 USD for the first 20 buyers on the same SKU. No second product. No coupons. Seller: Suthirth solutions. Contact hello@yellowgram.dev.
+**Commercial lock:** $149 USD once for one organization, perpetual for the named tag. Launch price $99 USD for the first 20 buyers on the same SKU. No second product. No coupons. Seller: Suthirth solutions. Contact hello@yellowgram.dev. Source of record: PolyForm Noncommercial 1.0.0 (`LICENSE`) and the Suthirth Commercial Grant (`COMMERCIAL_GRANT.md`). Claims: source-available = true. OSI open source = false. Soft-WTP is off.
 
 There is no monthly fee. The 2026-09-26 draft that credited a pro-rated $79 month, and the $199 setup fee in that draft, are not the price to charge.
 
