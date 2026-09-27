@@ -13,6 +13,8 @@ export const OUTBOX_MAX_ATTEMPTS = 5;
 export const OUTBOX_LEASE_SECONDS = 30;
 export const KEY_OVERLAP_HOURS = 24;
 export const SDK_CACHE_TTL_MAX_MS = 5000;
+/** Signature window and the cap on how far event_ts may sit ahead of that signature. */
+export const SIGNATURE_TOLERANCE_SEC = 300;
 export const DEFAULT_PUBLIC_STATUS_URL = "https://status.yellowgram.dev/maydo";
 
 /** Local defaults. Production startup refuses these. They are not secret. */
@@ -32,6 +34,7 @@ export const ALLOW_REASONS = [
   "no_grant",
   "tenant_disabled",
   "auth_failed",
+  "bad_request",
   "maydo_unavailable",
 ] as const;
 

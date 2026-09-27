@@ -45,9 +45,9 @@ Set every one of these. A missing or default secret fails closed (the process ex
 - Do **not** set `MAYDO_ALLOW_INSECURE_DEV_SECRETS`
 - `DATABASE_URL_API` is `maydo_api`. `DATABASE_URL_WORKER` is `maydo_worker`. Neither is the migrator.
 
-The production console cookie is `Secure`. Terminate TLS in front of the console. Leave `MAYDO_TRUST_PROXY` unset unless one reverse proxy is the only path to the process.
+The production console cookie is `Secure`. Terminate TLS in front of the console. Run **one** API process. The allow rate limit does not cross processes.
 
-IP allowlists use the socket address. Set `MAYDO_TRUST_PROXY=1` only when a reverse proxy is the only path to the process; the rightmost `X-Forwarded-For` hop is then the client.
+IP allowlists use the socket address. Leave `MAYDO_TRUST_PROXY` unset unless one reverse proxy is the only path to the process. That flag trusts the rightmost `X-Forwarded-For` hop. CR3 did not pick a hop count for a second proxy.
 
 ## Three processes
 
@@ -74,7 +74,9 @@ Put `maydo_actor` and `maydo_action` (or `maydo_actions`) on the Checkout or Pol
 
 A duplicate delivery returns **200** and does not create a second grant. A bad signature returns **400**. A database failure returns **500** so the provider retries. Never ACK a bad signature with 200 — Polar disables endpoints after repeated non-2xx, but a false 200 is worse.
 
-The 60-second path is [`DEMO_60S.md`](DEMO_60S.md).
+The 60-second path is [`DEMO_60S.md`](DEMO_60S.md). The runnable form is `scripts/demo-60s.sh`. `maydo outbox drain` applies only `MAYDO_TENANT_ID`. Draining every tenant requires `outbox drain --all-tenants` and `DATABASE_URL_WORKER`.
+
+`allow` expiry uses the database clock. A far-future `created` on a signed webhook is clamped to the signature time so it cannot block a later refund.
 
 ## Operator commands
 

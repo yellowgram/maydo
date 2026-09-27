@@ -2,7 +2,7 @@
 
 Paid webhook → allow → local revoke → deny. No invoice, no portal, no fail-open.
 
-Assumes migrate, bootstrap, API, and worker are already up (see START_HERE). Replace the tokens from bootstrap.
+Runnable script: [`scripts/demo-60s.sh`](../scripts/demo-60s.sh). It exits non-zero if the wall clock exceeds 60 seconds. CI runs the same sequence in-process and asserts the same bound. Assumes migrate, bootstrap, API, and worker are already up (see START_HERE). Replace the tokens from bootstrap. `outbox drain` applies only the tenant in `MAYDO_TENANT_ID`.
 
 ```bash
 # 0s — sign a Stripe test event and post it

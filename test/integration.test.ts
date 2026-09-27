@@ -6,7 +6,7 @@ import { after, before, describe, test } from "node:test";
 import pg from "pg";
 import { hashApiKey, mintKey, parseMappingSeed, signPolar, signStripe } from "../packages/core/src/index.js";
 import { createApiServer, listen } from "../apps/api/src/server.js";
-import { applyPayload, assertRuntimeRole, drainOnce, makePool, migrate, replayExecute, seedMappings, withTenant } from "../packages/db/src/index.js";
+import { applyPayload, assertRuntimeRole, drainAuditBatch, drainOnce, makePool, migrate, replayExecute, seedMappings, withTenant } from "../packages/db/src/index.js";
 import { createLocalGrant, listGrantsForAllow, revokeGrant } from "../packages/db/src/grants.js";
 import { evaluateGrants } from "../packages/core/src/evaluate.js";
 import { createClient } from "../packages/sdk-ts/src/index.js";
@@ -977,8 +977,357 @@ describe("postgres kernel", { concurrency: 1 }, () => {
       );
       assert.equal(response.status, 400);
       assert.equal(response.json.error, "bad_request");
+      assert.equal(response.json.allow, false);
+      assert.equal(response.json.reason, "bad_request");
       const queued = await migrator.query(`SELECT count(*)::int AS n FROM maydo.audit_queue WHERE tenant_id = $1`, [tenant]);
       assert.equal(queued.rows[0].n, 0);
+    } finally {
+      server.close();
+    }
+  });
+
+  test("a future provider timestamp cannot outrank a later revoke", async () => {
+    await truncate();
+    const tenant = await insertTenant("future-ts");
+    const secret = "whsec_future";
+    const token = "futuretoken";
+    await migrator.query(
+      `INSERT INTO maydo.webhook_endpoints (tenant_id, provider, ingest_token, secret, livemode)
+       VALUES ($1, 'stripe', $2, $3, false)`,
+      [tenant, token, secret],
+    );
+    const server = createApiServer({ pool: apiPool, pepper: PEPPER, ratePerMin: 10_000 });
+    await listen(server, 0);
+    const port = (server.address() as { port: number }).port;
+    try {
+      const grantBody = Buffer.from(
+        JSON.stringify({
+          id: "evt_future_grant",
+          object: "event",
+          type: "checkout.session.completed",
+          livemode: false,
+          created: 2_000_000_000,
+          data: {
+            object: {
+              id: "cs_future",
+              object: "checkout.session",
+              customer: "cus_future",
+              subscription: "sub_future",
+              metadata: { maydo_actor: "org_future", maydo_action: "export.pdf" },
+            },
+          },
+        }),
+      );
+      const grantSig = signStripe(grantBody, secret, Math.floor(Date.now() / 1000));
+      const granted = await request(port, "POST", `/v1/webhooks/stripe/${token}`, grantBody, {
+        "stripe-signature": grantSig,
+      });
+      assert.equal(granted.status, 200, JSON.stringify(granted.json));
+      const stored = await migrator.query<{ event_ts: string }>(
+        `SELECT payload->>'event_ts' AS event_ts FROM maydo.outbox WHERE tenant_id = $1`,
+        [tenant],
+      );
+      const eventTs = Date.parse(stored.rows[0].event_ts);
+      assert.ok(Math.abs(eventTs - Date.now()) < 10 * 60 * 1000, stored.rows[0].event_ts);
+      await drainAll();
+
+      const revokeBody = Buffer.from(
+        JSON.stringify({
+          id: "evt_future_revoke",
+          object: "event",
+          type: "customer.subscription.deleted",
+          livemode: false,
+          created: Math.floor(Date.now() / 1000),
+          data: { object: { id: "sub_future", object: "subscription", status: "canceled" } },
+        }),
+      );
+      const revokeSig = signStripe(revokeBody, secret, Math.floor(Date.now() / 1000));
+      const revoked = await request(port, "POST", `/v1/webhooks/stripe/${token}`, revokeBody, {
+        "stripe-signature": revokeSig,
+      });
+      assert.equal(revoked.status, 200, JSON.stringify(revoked.json));
+      await drainAll();
+      const row = await migrator.query<{ state: string }>(
+        `SELECT state FROM maydo.grants WHERE tenant_id = $1 AND binding_id = 'sub_future'`,
+        [tenant],
+      );
+      assert.equal(row.rows[0].state, "revoked");
+    } finally {
+      server.close();
+    }
+  });
+
+  test("an equal event timestamp lets the revoke win", async () => {
+    await truncate();
+    const tenant = await insertTenant("tie-ts");
+    const ts = new Date().toISOString();
+    await withTenant(workerPool, tenant, async (client) => {
+      await applyPayload(client, tenant, {
+        intent: "revoke",
+        actor: "org_tie",
+        action: "export.pdf",
+        source: "stripe",
+        binding_id: "sub_tie",
+        source_event_id: "evt_tie_revoke",
+        event_ts: ts,
+      });
+      await applyPayload(client, tenant, {
+        intent: "grant",
+        actor: "org_tie",
+        action: "export.pdf",
+        source: "stripe",
+        binding_id: "sub_tie",
+        source_event_id: "evt_tie_grant",
+        event_ts: ts,
+      });
+    });
+    const afterGrant = await migrator.query<{ state: string; source_event_id: string }>(
+      `SELECT state, source_event_id FROM maydo.grants WHERE tenant_id = $1`,
+      [tenant],
+    );
+    assert.equal(afterGrant.rows[0].state, "revoked");
+    assert.equal(afterGrant.rows[0].source_event_id, "evt_tie_revoke");
+
+    await withTenant(workerPool, tenant, async (client) => {
+      await applyPayload(client, tenant, {
+        intent: "grant",
+        actor: "org_tie2",
+        action: "export.pdf",
+        source: "stripe",
+        binding_id: "sub_tie2",
+        source_event_id: "evt_tie2_grant",
+        event_ts: ts,
+      });
+      await applyPayload(client, tenant, {
+        intent: "revoke",
+        actor: "org_tie2",
+        action: "export.pdf",
+        source: "stripe",
+        binding_id: "sub_tie2",
+        source_event_id: "evt_tie2_revoke",
+        event_ts: ts,
+      });
+    });
+    const afterRevoke = await migrator.query<{ state: string }>(
+      `SELECT state FROM maydo.grants WHERE tenant_id = $1 AND binding_id = 'sub_tie2'`,
+      [tenant],
+    );
+    assert.equal(afterRevoke.rows[0].state, "revoked");
+  });
+
+  test("a leased in-flight row is not applied twice", async () => {
+    await truncate();
+    const tenant = await insertTenant("lease");
+    await migrator.query(
+      `INSERT INTO maydo.outbox (
+         tenant_id, expansion_set_id, provider, provider_event_id, adapter, idempotency_key, state, payload
+       ) VALUES ($1, gen_random_uuid(), 'stripe', 'evt_lease', 'grant', 'stripe|evt_lease|grant:export.pdf|org_lease', 'pending', $2::jsonb)`,
+      [
+        tenant,
+        JSON.stringify({
+          intent: "grant",
+          actor: "org_lease",
+          action: "export.pdf",
+          source: "stripe",
+          binding_id: "sub_lease",
+          source_event_id: "evt_lease",
+          event_ts: new Date().toISOString(),
+        }),
+      ],
+    );
+    const holder = await workerPool.connect();
+    try {
+      await holder.query("BEGIN");
+      const locked = await holder.query(`SELECT id FROM maydo.outbox WHERE tenant_id = $1 FOR UPDATE`, [tenant]);
+      assert.equal(locked.rowCount, 1);
+      assert.equal(await drainOnce(workerPool), false);
+      await holder.query("ROLLBACK");
+    } finally {
+      holder.release();
+    }
+    assert.equal(await drainOnce(workerPool), true);
+    assert.equal(await drainOnce(workerPool), false);
+    const grants = await migrator.query(`SELECT count(*)::int AS n FROM maydo.grants WHERE tenant_id = $1`, [tenant]);
+    assert.equal(grants.rows[0].n, 1);
+  });
+
+  test("cli drain stays on MAYDO_TENANT_ID when the worker URL is set", async () => {
+    await truncate();
+    const tenantA = await insertTenant("drain-cli-a");
+    const tenantB = await insertTenant("drain-cli-b");
+    const payload = JSON.stringify({
+      intent: "grant",
+      actor: "org_cli",
+      action: "export.pdf",
+      source: "stripe",
+      binding_id: "sub_cli",
+      source_event_id: "evt_cli",
+      event_ts: new Date().toISOString(),
+    });
+    await migrator.query(
+      `INSERT INTO maydo.outbox (
+         tenant_id, expansion_set_id, provider, provider_event_id, adapter, idempotency_key, state, payload, created_at
+       ) VALUES ($1, gen_random_uuid(), 'stripe', 'evt_cli_b', 'grant', 'stripe|evt_cli_b|grant:export.pdf|org_cli', 'pending', $2::jsonb, now() - interval '1 minute')`,
+      [tenantB, payload],
+    );
+    await migrator.query(
+      `INSERT INTO maydo.outbox (
+         tenant_id, expansion_set_id, provider, provider_event_id, adapter, idempotency_key, state, payload
+       ) VALUES ($1, gen_random_uuid(), 'stripe', 'evt_cli_a', 'grant', 'stripe|evt_cli_a|grant:export.pdf|org_cli', 'pending', $2::jsonb)`,
+      [tenantA, payload],
+    );
+    const result = spawnSync(
+      process.execPath,
+      ["dist/packages/cli/src/main.js", "outbox", "drain", "--once"],
+      {
+        env: {
+          ...process.env,
+          DATABASE_URL_WORKER: WORKER_URL,
+          DATABASE_URL_API: API_URL,
+          MAYDO_TENANT_ID: tenantA,
+          MAYDO_KEY_PEPPER: PEPPER,
+        },
+        encoding: "utf8",
+      },
+    );
+    assert.equal(result.status, 0, `${result.stderr}\n${result.stdout}`);
+    const states = await migrator.query<{ tenant_id: string; state: string }>(
+      `SELECT tenant_id, state FROM maydo.outbox ORDER BY created_at`,
+    );
+    const byTenant = new Map(states.rows.map((row) => [row.tenant_id, row.state]));
+    assert.equal(byTenant.get(tenantA), "done");
+    assert.equal(byTenant.get(tenantB), "pending");
+  });
+
+  test("purge refuses a short retention window and runtime roles cannot delete audit", async () => {
+    await truncate();
+    await assert.rejects(workerPool.query(`SELECT maydo.purge_allow_audit(1)`), /retention days/);
+    const purged = await workerPool.query<{ purge_allow_audit: string }>(`SELECT maydo.purge_allow_audit(30)`);
+    assert.equal(Number(purged.rows[0].purge_allow_audit), 0);
+    const tenant = await insertTenant("audit-del");
+    await migrator.query(
+      `INSERT INTO maydo.allow_audit (tenant_id, actor, action, decision, reason, latency_bucket)
+       VALUES ($1, 'org', 'export.pdf', 'deny', 'no_grant', 'lt5ms')`,
+      [tenant],
+    );
+    const client = await workerPool.connect();
+    try {
+      await client.query("BEGIN");
+      await client.query(`SELECT set_config('maydo.tenant_id', $1, true)`, [tenant]);
+      await assert.rejects(client.query(`DELETE FROM maydo.allow_audit WHERE tenant_id = $1`, [tenant]));
+      await client.query("ROLLBACK");
+    } finally {
+      client.release();
+    }
+    const left = await migrator.query(`SELECT count(*)::int AS n FROM maydo.allow_audit WHERE tenant_id = $1`, [tenant]);
+    assert.equal(left.rows[0].n, 1);
+  });
+
+  test("worker audit drain and tenant GUC do not cross mappings, keys, or dead letters", async () => {
+    await truncate();
+    const tenantA = await insertTenant("iso-a");
+    const tenantB = await insertTenant("iso-b");
+    await migrator.query(
+      `INSERT INTO maydo.api_keys (tenant_id, prefix, key_hash, scopes, last_four)
+       VALUES ($1, 'md_test_', 'hash-b', '{allow}', 'bbbb')`,
+      [tenantB],
+    );
+    await migrator.query(
+      `INSERT INTO maydo.mapping_config (tenant_id, provider, event_type, actions)
+       VALUES ($1, 'stripe', 'checkout.session.completed', '{export.pdf}')`,
+      [tenantB],
+    );
+    await migrator.query(
+      `INSERT INTO maydo.dead_letters (tenant_id, provider, provider_event_id, reason, payload)
+       VALUES ($1, 'stripe', 'evt_b', 'actor_unresolved', '{}'::jsonb)`,
+      [tenantB],
+    );
+    await migrator.query(
+      `INSERT INTO maydo.audit_queue (tenant_id, actor, action, decision, reason, latency_bucket)
+       VALUES ($1, 'org_a', 'export.pdf', 'deny', 'no_grant', 'lt5ms'),
+              ($2, 'org_b', 'export.pdf', 'deny', 'explicit_revoke', 'lt5ms')`,
+      [tenantA, tenantB],
+    );
+    assert.equal(await drainAuditBatch(workerPool), 2);
+    const audits = await migrator.query<{ tenant_id: string; actor: string }>(
+      `SELECT tenant_id, actor FROM maydo.allow_audit ORDER BY actor`,
+    );
+    assert.deepEqual(
+      audits.rows.map((row) => `${row.tenant_id}:${row.actor}`),
+      [`${tenantA}:org_a`, `${tenantB}:org_b`],
+    );
+    const client = await workerPool.connect();
+    try {
+      await client.query("BEGIN");
+      await client.query(`SELECT set_config('maydo.tenant_id', $1, true)`, [tenantA]);
+      const keys = await client.query(`SELECT id FROM maydo.api_keys WHERE tenant_id = $1`, [tenantB]);
+      const maps = await client.query(`SELECT id FROM maydo.mapping_config WHERE tenant_id = $1`, [tenantB]);
+      const letters = await client.query(`SELECT id FROM maydo.dead_letters WHERE tenant_id = $1`, [tenantB]);
+      assert.equal(keys.rowCount, 0);
+      assert.equal(maps.rowCount, 0);
+      assert.equal(letters.rowCount, 0);
+      await client.query("ROLLBACK");
+    } finally {
+      client.release();
+    }
+  });
+
+  test("demo path grants, revokes, and denies in under 60 seconds", async () => {
+    await truncate();
+    const started = Date.now();
+    const tenant = await insertTenant("demo");
+    const secret = "whsec_demo";
+    const token = "demotoken";
+    const decision = mintKey("md_test_");
+    await insertKey(tenant, decision.token);
+    await migrator.query(
+      `INSERT INTO maydo.webhook_endpoints (tenant_id, provider, ingest_token, secret, livemode)
+       VALUES ($1, 'stripe', $2, $3, false)`,
+      [tenant, token, secret],
+    );
+    const server = createApiServer({ pool: apiPool, pepper: PEPPER, ratePerMin: 10_000 });
+    await listen(server, 0);
+    const port = (server.address() as { port: number }).port;
+    try {
+      const body = Buffer.from(
+        JSON.stringify({
+          id: "evt_demo_1",
+          object: "event",
+          type: "checkout.session.completed",
+          livemode: false,
+          created: Math.floor(Date.now() / 1000),
+          data: {
+            object: {
+              id: "cs_demo",
+              object: "checkout.session",
+              customer: "cus_demo",
+              subscription: "sub_demo",
+              metadata: { maydo_actor: "org_demo", maydo_action: "export.pdf" },
+            },
+          },
+        }),
+      );
+      const sig = signStripe(body, secret, Math.floor(Date.now() / 1000));
+      const posted = await request(port, "POST", `/v1/webhooks/stripe/${token}`, body, { "stripe-signature": sig });
+      assert.equal(posted.json.status, "ok");
+      await drainAll();
+      const allowed = await request(port, "POST", "/v1/allow", JSON.stringify({ actor: "org_demo", action: "export.pdf" }), {
+        authorization: `Bearer ${decision.token}`,
+        "content-type": "application/json",
+      });
+      assert.equal(allowed.json.allow, true);
+      assert.equal(allowed.json.reason, "grant_active");
+      const grant = await migrator.query<{ id: string }>(`SELECT id FROM maydo.grants WHERE tenant_id = $1`, [tenant]);
+      await withTenant(apiPool, tenant, (client) => revokeGrant(client, tenant, grant.rows[0].id, "demo"));
+      const denied = await request(port, "POST", "/v1/allow", JSON.stringify({ actor: "org_demo", action: "export.pdf" }), {
+        authorization: `Bearer ${decision.token}`,
+        "content-type": "application/json",
+      });
+      assert.equal(denied.json.allow, false);
+      assert.equal(denied.json.reason, "explicit_revoke");
+      const duplicate = await request(port, "POST", `/v1/webhooks/stripe/${token}`, body, { "stripe-signature": sig });
+      assert.equal(duplicate.json.status, "duplicate");
+      assert.ok(Date.now() - started < 60_000);
     } finally {
       server.close();
     }
@@ -1074,8 +1423,9 @@ async function drainAll(): Promise<void> {
 
 async function loadDecision(tenantId: string, actor: string, action: string) {
   return withTenant(apiPool, tenantId, async (client) => {
+    const clock = await client.query<{ now: Date }>(`SELECT now() AS now`);
     const grants = await listGrantsForAllow(client, tenantId, actor, action);
-    return evaluateGrants(grants, new Date());
+    return evaluateGrants(grants, clock.rows[0].now);
   });
 }
 

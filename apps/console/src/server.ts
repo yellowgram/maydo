@@ -193,8 +193,11 @@ async function login(req: IncomingMessage, res: ServerResponse, opts: ConsoleOpt
     ip_allowlist: unknown;
     revoked_at: Date | null;
     expires_at: Date | null;
+    expired: boolean;
   }>(
-    `SELECT tenant_id, key_id, prefix, ip_allowlist, revoked_at, expires_at FROM maydo.authenticate_key($1)`,
+    `SELECT auth.tenant_id, auth.key_id, auth.prefix, auth.ip_allowlist, auth.revoked_at, auth.expires_at,
+            (auth.expires_at IS NOT NULL AND auth.expires_at <= now()) AS expired
+     FROM maydo.authenticate_key($1) AS auth`,
     [hashApiKey(token, opts.pepper)],
   );
   const key = auth.rows[0];
@@ -207,7 +210,7 @@ async function login(req: IncomingMessage, res: ServerResponse, opts: ConsoleOpt
     !key ||
     key.prefix !== "md_op_" ||
     key.revoked_at ||
-    (key.expires_at && key.expires_at.getTime() <= Date.now()) ||
+    key.expired ||
     !ipAllowed(ip, parsePgTextArray(key.ip_allowlist))
   ) {
     sendHtml(res, loginPage("Key rejected."), 401);
@@ -240,8 +243,10 @@ async function requireOperator(
       ip_allowlist: unknown;
       expires_at: Date | null;
       revoked_at: Date | null;
+      expired: boolean;
     }>(
-      `SELECT prefix, ip_allowlist, expires_at, revoked_at
+      `SELECT prefix, ip_allowlist, expires_at, revoked_at,
+              (expires_at IS NOT NULL AND expires_at <= now()) AS expired
        FROM maydo.api_keys WHERE tenant_id = $1 AND id = $2`,
       [session.tenantId, session.keyId],
     );
@@ -252,8 +257,7 @@ async function requireOperator(
     forwardedFor: header(req, "x-forwarded-for"),
     trustProxy,
   });
-  const expired = Boolean(key?.expires_at && key.expires_at.getTime() <= Date.now());
-  if (!key || key.revoked_at || expired || key.prefix !== "md_op_" || !ipAllowed(ip, parsePgTextArray(key?.ip_allowlist))) {
+  if (!key || key.revoked_at || key.expired || key.prefix !== "md_op_" || !ipAllowed(ip, parsePgTextArray(key?.ip_allowlist))) {
     res.writeHead(401, {
       "content-type": "text/html; charset=utf-8",
       "set-cookie": sessionCookie("", 0, Boolean(opts.production)),

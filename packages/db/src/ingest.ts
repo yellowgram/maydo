@@ -10,6 +10,7 @@ import {
   type Plan,
 } from "../../adapters/src/index.js";
 import {
+  clampEventTimestamp,
   verifyPolarSignature,
   verifyStripeSignature,
   type VerifyFailure,
@@ -39,7 +40,9 @@ export async function ingestStripe(
   return ingest(pool, "stripe", token, rawBody, nowMs, (endpoint) => {
     const verified = verifyStripeSignature(rawBody, signature, endpoint.secret, nowMs);
     if (!verified.ok) return verified;
-    return { ok: true as const, event: normalizeStripe(verified.body, "missing") };
+    const event = normalizeStripe(verified.body, "missing");
+    event.eventTs = clampEventTimestamp(event.eventTs, verified.timestampSec);
+    return { ok: true as const, event };
   });
 }
 
@@ -54,7 +57,9 @@ export async function ingestPolar(
     const verified = verifyPolarSignature(rawBody, headers, endpoint.secret, nowMs);
     if (!verified.ok) return verified;
     if (!headers.id) return { ok: false as const, reason: "bad_signature" };
-    return { ok: true as const, event: normalizePolar(verified.body, headers.id, headers.timestamp) };
+    const event = normalizePolar(verified.body, headers.id, headers.timestamp);
+    event.eventTs = clampEventTimestamp(event.eventTs, verified.timestampSec);
+    return { ok: true as const, event };
   });
 }
 

@@ -126,8 +126,10 @@ async function claimRow(client: pg.PoolClient, tenantId?: string): Promise<Outbo
 /**
  * A stored timestamp wins over an older one and over a missing one.
  * Two missing timestamps stay last-write-wins (known limit).
+ * On an equal timestamp, a grant does not revive a revoke. A revoke still applies.
  */
-const NEWER_STORED = `grants.source_event_ts IS NOT NULL AND (EXCLUDED.source_event_ts IS NULL OR grants.source_event_ts > EXCLUDED.source_event_ts)`;
+const STORED_WINS_GRANT = `grants.source_event_ts IS NOT NULL AND (EXCLUDED.source_event_ts IS NULL OR grants.source_event_ts >= EXCLUDED.source_event_ts)`;
+const STORED_WINS_REVOKE = `grants.source_event_ts IS NOT NULL AND (EXCLUDED.source_event_ts IS NULL OR grants.source_event_ts > EXCLUDED.source_event_ts)`;
 
 export type ApplyResult = { skippedOperatorLock: boolean };
 
@@ -160,11 +162,11 @@ async function upsertAllow(client: pg.PoolClient, tenantId: string, payload: Out
      ) VALUES ($1, $2, $3, $4, $5, 'active', 'allow', false, $6, $7, now())
      ON CONFLICT (tenant_id, actor, action, source, binding_id)
      DO UPDATE SET
-       state = CASE WHEN ${NEWER_STORED} THEN grants.state ELSE 'active' END,
-       precedence_class = CASE WHEN ${NEWER_STORED} THEN grants.precedence_class ELSE 'allow' END,
-       revoked_at = CASE WHEN ${NEWER_STORED} THEN grants.revoked_at ELSE NULL END,
-       source_event_id = CASE WHEN ${NEWER_STORED} THEN grants.source_event_id ELSE EXCLUDED.source_event_id END,
-       source_event_ts = CASE WHEN ${NEWER_STORED} THEN grants.source_event_ts ELSE EXCLUDED.source_event_ts END,
+       state = CASE WHEN ${STORED_WINS_GRANT} THEN grants.state ELSE 'active' END,
+       precedence_class = CASE WHEN ${STORED_WINS_GRANT} THEN grants.precedence_class ELSE 'allow' END,
+       revoked_at = CASE WHEN ${STORED_WINS_GRANT} THEN grants.revoked_at ELSE NULL END,
+       source_event_id = CASE WHEN ${STORED_WINS_GRANT} THEN grants.source_event_id ELSE EXCLUDED.source_event_id END,
+       source_event_ts = CASE WHEN ${STORED_WINS_GRANT} THEN grants.source_event_ts ELSE EXCLUDED.source_event_ts END,
        updated_at = now()
      WHERE grants.tenant_id = $1
        AND grants.operator_lock = false
@@ -182,12 +184,12 @@ async function upsertRevoke(client: pg.PoolClient, tenantId: string, payload: Ou
      ) VALUES ($1, $2, $3, $4, $5, 'revoked', 'deny', false, now(), $6, $7, now())
      ON CONFLICT (tenant_id, actor, action, source, binding_id)
      DO UPDATE SET
-       state = CASE WHEN ${NEWER_STORED} THEN grants.state ELSE 'revoked' END,
-       precedence_class = CASE WHEN ${NEWER_STORED} THEN grants.precedence_class ELSE 'deny' END,
-       revoked_at = CASE WHEN ${NEWER_STORED} THEN grants.revoked_at ELSE now() END,
-       sticky = CASE WHEN ${NEWER_STORED} THEN grants.sticky ELSE false END,
-       source_event_id = CASE WHEN ${NEWER_STORED} THEN grants.source_event_id ELSE EXCLUDED.source_event_id END,
-       source_event_ts = CASE WHEN ${NEWER_STORED} THEN grants.source_event_ts ELSE EXCLUDED.source_event_ts END,
+       state = CASE WHEN ${STORED_WINS_REVOKE} THEN grants.state ELSE 'revoked' END,
+       precedence_class = CASE WHEN ${STORED_WINS_REVOKE} THEN grants.precedence_class ELSE 'deny' END,
+       revoked_at = CASE WHEN ${STORED_WINS_REVOKE} THEN grants.revoked_at ELSE now() END,
+       sticky = CASE WHEN ${STORED_WINS_REVOKE} THEN grants.sticky ELSE false END,
+       source_event_id = CASE WHEN ${STORED_WINS_REVOKE} THEN grants.source_event_id ELSE EXCLUDED.source_event_id END,
+       source_event_ts = CASE WHEN ${STORED_WINS_REVOKE} THEN grants.source_event_ts ELSE EXCLUDED.source_event_ts END,
        updated_at = now()
      WHERE grants.tenant_id = $1
        AND NOT (grants.source = 'local' AND grants.sticky = true AND grants.state = 'active'

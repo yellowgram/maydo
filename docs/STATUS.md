@@ -2,7 +2,7 @@
 
 **URL:** https://status.yellowgram.dev/maydo
 
-The page in this repo (`status/index.html`) is the stub to publish. Updates are manual. States are `operational`, `degraded`, and `outage`.
+**LaunchGate block:** this repository does not deploy that host. `status/index.html` is the page to publish (operational / degraded / outage, fail-closed wording). Until that file is actually served at the URL, do not tell a buyer the status page is live, and do not list on Polar.
 
 `maydo status` prints that URL and, when `API_BASE_URL` is set, the local `/healthz` result.
 

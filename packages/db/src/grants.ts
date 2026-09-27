@@ -99,7 +99,12 @@ export async function createLocalGrant(
     now?: Date;
   },
 ): Promise<GrantRow> {
-  const now = input.now ?? new Date();
+  if (input.expiresAt && Number.isNaN(input.expiresAt.getTime())) {
+    throw new GrantWriteError("expires_invalid", "expires_at is not a valid time");
+  }
+  const now =
+    input.now ??
+    (await client.query<{ now: Date }>(`SELECT now() AS now`)).rows[0].now;
   if (!input.actor || !input.action) throw new GrantWriteError("invalid", "actor and action are required");
   if (input.actor.length > ACTOR_MAX_LEN || input.action.length > ACTION_MAX_LEN) {
     throw new GrantWriteError("field_too_long", `actor and action must be at most ${ACTOR_MAX_LEN} characters`);

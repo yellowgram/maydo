@@ -7,6 +7,7 @@ export const ALLOW_REASONS = [
   "no_grant",
   "tenant_disabled",
   "auth_failed",
+  "bad_request",
   "maydo_unavailable",
 ] as const;
 
@@ -54,7 +55,9 @@ export function createClient(options: CreateClientOptions): MaydoClient {
         if (hit && hit.expires > now) return hit.value;
       }
       const result = await requestAllow(baseUrl, options.apiKey, timeoutMs, input.actor, input.action);
-      if (options.cache) cache.set(key, { expires: now + options.cache.ttlMs, value: result });
+      if (options.cache && result.reason !== "maydo_unavailable") {
+        cache.set(key, { expires: now + options.cache.ttlMs, value: result });
+      }
       return result;
     },
   };

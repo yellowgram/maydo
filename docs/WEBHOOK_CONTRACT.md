@@ -30,4 +30,6 @@ A grant that loses to `operator_lock` is still **200** at ingest and **done** af
 
 If `actor_maps` already names an actor for that provider customer and the metadata names a different one, a **grant** dead-letters with `actor_metadata_mismatch`. A **revoke** still revokes grants stored on the binding for the mapped actor, and records the same note. There is no signed actor token in this kernel.
 
-Actor and action strings are capped at 256 characters. Longer values dead-letter (`field_too_long`) or, on `POST /v1/allow`, return 400.
+Actor and action strings are capped at 256 characters. Longer values dead-letter (`field_too_long`). `POST /v1/allow` returns HTTP 400 `{ "allow": false, "reason": "bad_request" }` and does not audit.
+
+Ordering uses the provider timestamp. If that timestamp is more than five minutes ahead of the verified signature, MayDo stores the signature time instead. A missing timestamp does not erase a stored one. Two missing timestamps are last-write-wins. An equal timestamp does not let a grant revive a revoke.

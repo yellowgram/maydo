@@ -1,14 +1,32 @@
 import { createHmac } from "node:crypto";
+import { SIGNATURE_TOLERANCE_SEC } from "./constants.js";
 import { safeEqual } from "./keys.js";
 
-const TOLERANCE_SEC = 300;
-
 export type VerifyFailure = { ok: false; reason: "bad_signature" | "bad_timestamp" | "bad_payload" };
-export type VerifyOk<T> = { ok: true; body: T };
+export type VerifyOk<T> = { ok: true; body: T; timestampSec: number };
 
 function withinTolerance(timestampSec: number, nowMs: number): boolean {
   if (!Number.isFinite(timestampSec)) return false;
-  return Math.abs(nowMs / 1000 - timestampSec) <= TOLERANCE_SEC;
+  return Math.abs(nowMs / 1000 - timestampSec) <= SIGNATURE_TOLERANCE_SEC;
+}
+
+/**
+ * A signed body can carry `created` / `timestamp` years ahead of the signature.
+ * That timestamp would beat every later refund. Clamp only the future side to
+ * the verified signature time. A missing or unparseable value stays missing so
+ * last-write-wins for two nulls is unchanged. Older timestamps are kept.
+ */
+export function clampEventTimestamp(
+  eventTs: string | null,
+  signatureUnixSec: number,
+  skewSec = SIGNATURE_TOLERANCE_SEC,
+): string | null {
+  if (!eventTs) return null;
+  const parsed = Date.parse(eventTs);
+  if (!Number.isFinite(parsed)) return null;
+  const ceiling = (signatureUnixSec + skewSec) * 1000;
+  if (parsed > ceiling) return new Date(signatureUnixSec * 1000).toISOString();
+  return new Date(parsed).toISOString();
 }
 
 /** Stripe-Signature: t=unix,v1=hex. HMAC key is the webhook secret as UTF-8. */
@@ -38,7 +56,7 @@ export function verifyStripeSignature(
   try {
     const body = JSON.parse(rawBody.toString("utf8")) as Record<string, unknown>;
     if (!body || typeof body !== "object") return { ok: false, reason: "bad_payload" };
-    return { ok: true, body };
+    return { ok: true, body, timestampSec: ts };
   } catch {
     return { ok: false, reason: "bad_payload" };
   }
@@ -87,7 +105,7 @@ export function verifyPolarSignature(
   try {
     const body = JSON.parse(rawBody.toString("utf8")) as Record<string, unknown>;
     if (!body || typeof body !== "object") return { ok: false, reason: "bad_payload" };
-    return { ok: true, body };
+    return { ok: true, body, timestampSec: ts };
   } catch {
     return { ok: false, reason: "bad_payload" };
   }

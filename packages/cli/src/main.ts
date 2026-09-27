@@ -96,8 +96,17 @@ async function main(group: string | undefined, action: string | undefined, rest:
   try {
     await assertRuntimeRole(pool);
     if (group === "outbox" && action === "drain") {
-      const drained = await drainOnce(pool, process.env.DATABASE_URL_WORKER ? {} : { tenantId });
-      console.log(JSON.stringify({ drained }));
+      if (flags["all-tenants"]) {
+        if (!process.env.DATABASE_URL_WORKER) {
+          throw new Error("outbox drain --all-tenants requires DATABASE_URL_WORKER");
+        }
+        console.error("warning: draining every tenant outbox; this applies other tenants' pending grants and revokes");
+        const drained = await drainOnce(pool, {});
+        console.log(JSON.stringify({ drained, tenant: "all" }));
+        return;
+      }
+      const drained = await drainOnce(pool, { tenantId });
+      console.log(JSON.stringify({ drained, tenant_id: tenantId }));
       return;
     }
     await withTenant(pool, tenantId, async (client) => {
@@ -268,7 +277,7 @@ function usage(): string {
   mapping list|enable|disable|set-actions|seed
   webhooks events|health
   replay list|dry-run|execute
-  outbox drain --once | outbox depth
+  outbox drain --once [--all-tenants] | outbox depth
   audit search|export
   keys create|rotate|list
   status

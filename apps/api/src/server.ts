@@ -88,10 +88,10 @@ async function handleAllow(
     return send(res, 400, { error: "bad_request" });
   }
   if (typeof body.actor !== "string" || typeof body.action !== "string" || !body.actor || !body.action) {
-    return send(res, 400, { error: "bad_request" });
+    return send(res, 400, badRequest(evaluatedAt));
   }
   if (body.actor.length > ACTOR_MAX_LEN || body.action.length > ACTION_MAX_LEN) {
-    return send(res, 400, { error: "bad_request" });
+    return send(res, 400, badRequest(evaluatedAt));
   }
   const started = Date.now();
   try {
@@ -103,9 +103,13 @@ async function handleAllow(
       expires_at: Date | null;
       revoked_at: Date | null;
       tenant_status: string;
-    }>(`SELECT * FROM maydo.authenticate_key($1)`, [hashApiKey(token, opts.pepper)]);
+      db_now: Date;
+    }>(
+      `SELECT auth.*, now() AS db_now FROM maydo.authenticate_key($1) AS auth`,
+      [hashApiKey(token, opts.pepper)],
+    );
     const key = auth.rows[0];
-    if (!key || key.revoked_at || (key.expires_at && key.expires_at.getTime() <= Date.now())) {
+    if (!key || key.revoked_at || (key.expires_at && key.expires_at.getTime() <= key.db_now.getTime())) {
       return send(res, 401, { allow: false, reason: "auth_failed", grant_ids: [], evaluated_at: evaluatedAt.toISOString() });
     }
     if (key.prefix === "md_op_") {
@@ -144,8 +148,10 @@ async function handleAllow(
     }
 
     const decision = await withTenant(opts.pool, key.tenant_id, async (client) => {
+      const clock = await client.query<{ now: Date }>(`SELECT now() AS now`);
+      const now = clock.rows[0].now;
       const grants = await listGrantsForAllow(client, key.tenant_id, body.actor as string, body.action as string);
-      const evaluated = evaluateGrants(grants, evaluatedAt);
+      const evaluated = evaluateGrants(grants, now);
       const depth = await pendingAuditDepth(client, key.tenant_id);
       try {
         await enqueueAudit(client, {
@@ -167,7 +173,7 @@ async function handleAllow(
         allow: evaluated.allow,
         reason: evaluated.reason,
         grant_ids: evaluated.grant_ids,
-        evaluated_at: evaluatedAt.toISOString(),
+        evaluated_at: now.toISOString(),
       };
     });
     send(res, 200, decision);
@@ -175,6 +181,22 @@ async function handleAllow(
     console.error("allow failed closed", error instanceof Error ? error.message : error);
     send(res, 503, unavailableDecision());
   }
+}
+
+function badRequest(evaluatedAt: Date): {
+  allow: false;
+  reason: "bad_request";
+  error: "bad_request";
+  grant_ids: [];
+  evaluated_at: string;
+} {
+  return {
+    allow: false,
+    reason: "bad_request",
+    error: "bad_request",
+    grant_ids: [],
+    evaluated_at: evaluatedAt.toISOString(),
+  };
 }
 
 function bearer(req: IncomingMessage): string | null {

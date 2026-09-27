@@ -16,11 +16,11 @@ MayDo revokes **all** actions on that order or subscription binding when it sees
 
 ## `allow` failed closed during an outage
 
-The SDK returns `{ "allow": false, "reason": "maydo_unavailable" }` on HTTP 5xx, HTTP 429, network errors, and timeouts. That is the contract. There is no availability mode and no fail-open flag.
+The SDK returns `{ "allow": false, "reason": "maydo_unavailable" }` on HTTP 5xx, HTTP 429, network errors, and timeouts. That is the contract. There is no availability mode and no fail-open flag. A malformed `allow` body is `{ "allow": false, "reason": "bad_request" }` with HTTP 400. That is the caller's request, not an outage. The SDK does not cache `maydo_unavailable`.
 
 Do not wrap the SDK in `catch { return true }`. A buyer who does that owns the open door. Point them at the status URL and this FAQ.
 
-`tenant_disabled`, `auth_failed`, `explicit_revoke`, `expired`, and `no_grant` are real decisions, not outages.
+`tenant_disabled`, `auth_failed`, `bad_request`, `explicit_revoke`, `expired`, and `no_grant` are real decisions, not outages.
 
 ## Why is the webhook 200 but `allow` still denies?
 
