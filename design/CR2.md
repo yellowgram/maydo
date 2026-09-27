@@ -32,7 +32,7 @@ Concurrent drain versus `allow()`, multi-action expansion, sticky expiry, audit 
 - Sticky without `expires_at` is rejected by `createLocalGrant` and by `CHECK (sticky = false OR expires_at IS NOT NULL)`. Webhook upserts set `sticky = false`. Horizon stays 90 days. Warn-above-10 stays a warning. A hard cap would be a new product rule, not a CR2 fix.
 - Replay execute is still absent from the console, including an authenticated POST. SQL filters `tenant_id`. Another tenant’s letter does not reopen the outbox row and does not mark the letter replayed.
 - Mapping seed is `ON CONFLICT DO NOTHING`. A changed database row survives a second seed. The 20-action check is in the planner, the CLI, and the table checks.
-- RLS forgotten-GUC fixture, Polar/Stripe pin fixtures, incident template, goodwill credit policy, status stub, and `docs/DEMO_60S.md` are present. No invoice path, quantity math, fail-open flag, SeatTruth revoke, or `md_op_` helper in the SDK showed up after CR1.
+- RLS forgotten-GUC fixture, Polar/Stripe pin fixtures, incident template, goodwill credit policy (later archived at `design/archive/FOUNDING_GOODWILL_CREDIT.md`; **not sold / not buyer-facing**), status stub, and `docs/DEMO_60S.md` are present. No invoice path, quantity math, fail-open flag, SeatTruth revoke, or `md_op_` helper in the SDK showed up after CR1.
 - SHA-256 of a 32-byte key is not a practical preimage. Plaintext webhook secrets and the `SECURITY DEFINER` lookup functions are not reachable from HTTP. Column revoke would not stop those functions. Left as P2.
 
 ## P0
@@ -69,7 +69,7 @@ See `docs/KNOWN_LIMITS.md`. Still deferred: plaintext webhook secrets, `SECURITY
 
 ## LaunchGate
 
-Not new code blockers. Still blocks before a Polar listing, and still not built here: a **live** status URL (the stub and the policy docs exist) and a **timed** ≤60s demo (the script exists; CI does not clock it). RLS cross-tenant drain fixture and provider pin fixtures are in tree and still match the adapters.
+Not new code blockers. At CR2 time, a published status URL and a timed demo were still open. That “blocks before a Polar listing” line is superseded: live Polar already delivers `maydo-0.1.1.zip`. The status page is kit guidance, not a yellowgram-operated decision API. RLS cross-tenant drain fixture and provider pin fixtures are in tree and still match the adapters.
 
 ## Questions for CR3
 

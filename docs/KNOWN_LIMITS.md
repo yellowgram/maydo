@@ -37,7 +37,7 @@ Deferred at CR1, CR2, and CR3. These are real, and they are not day-1 product fe
 
 ## LaunchGate leftovers (not implemented here)
 
-- Status copy, the incident template, and the goodwill policy are written. `status/index.html` is the page to publish. This repo does not deploy https://status.yellowgram.dev/maydo. A **live** status URL is still required before a Polar listing, including after `release/maydo-0.1.0.zip` exists. CR3 did not build a status host.
+- Kit status copy and the incident template are written for the process the buyer runs. `status/index.html` is that page. This repo does not deploy https://status.yellowgram.dev/maydo and does not operate a decision API. There is no seller hosted SLO. CR3 did not publish that URL.
 - `scripts/demo-60s.sh` is the demo, and CI runs the same sequence and asserts it finishes in under 60 seconds. A founder screenshare of that script against a booted stack is the remaining human check. The script refuses to pass if the wall clock exceeds 60 seconds.
 - The orphan report stays read-only. Nothing auto-revokes from it.
 - Replay execute stays on the CLI. The console can list dead letters and toggle mapping enabled. It cannot execute replay. Replay reopens the stored outbox payload for that tenant only. It does not re-verify the provider signature and it does not apply another tenant’s letter.

@@ -27,7 +27,7 @@ Price for the current kit SKU is set on Polar / yellowgram.dev Current card ($99
 - Rights for a **second organization** (each org needs its own purchase)
 - Rights to **other tags** or future major lines unless separately purchased or explicitly upgraded in writing
 - Permission to **resell, sublicense, republish, or redistribute** the kit (or a substantial portion) as a competing starter, boilerplate, template, course, or hosted service
-- **Self-host production rights** bundled into any **hosted** SKU (hosted is separate; it does not sell the self-host grant)
+- A managed or always-on cloud service operated by yellowgram. This purchase is the self-host kit only. yellowgram does not operate a hosted endpoint for this SKU
 - Permission to run a **competing hosted** offering of MayDo
 - Any OSI “open source” grant; payment does not convert the public PolyForm Noncommercial terms into MIT/Apache/BSD
 

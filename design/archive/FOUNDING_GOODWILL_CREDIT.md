@@ -1,6 +1,10 @@
 # Founding goodwill credit
 
-This is an operations policy. It is **not** an SLA, not an availability mode, and not a reason to fail open.
+**Not sold / not buyer-facing.**
+
+This file is archived design history. It is not a product feature, not a credit on the MayDo purchase, and not a seller SLO. The commercial SKU is a self-host kit only. yellowgram does not operate a hosted endpoint for this SKU.
+
+This is an operations note from an earlier draft. It is **not** an SLA, not an availability mode, and not a reason to fail open.
 
 **Commercial lock:** $149 USD once for one organization, perpetual for the named tag. Launch price $99 USD for the first 20 buyers on the same SKU. No second product. No coupons. Seller: Suthirth solutions. Contact hello@yellowgram.dev. Source of record: PolyForm Noncommercial 1.0.0 (`LICENSE`) and the Suthirth Commercial Grant (`COMMERCIAL_GRANT.md`). Claims: source-available = true. OSI open source = false. Soft-WTP is off.
 

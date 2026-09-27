@@ -20,7 +20,7 @@ Cross-tenant drain and RLS, webhook verify plus same-transaction outbox, grant p
 - Stripe and Polar signatures are checked before insert. Duplicates return **200** and do not enqueue a second grant. Bad signatures and livemode mismatch return **400**. Database failure on insert returns **500**. Outbox rows are written in the ingest transaction.
 - `allow` returns **503** `maydo_unavailable` when the database is down. The SDK cache is off unless `cache.ttlMs` is set, capped at 5000, and `md_op_` is refused. HTTP 5xx is not trusted even if the body says `allow: true`. Audit degrade keeps every deny.
 - Console route list has `GET /replay` and no execute route. Orphan candidates are read-only. `invoice.paid` is a no-op. `revoke_on_past_due` defaults false. Polar `subscription.updated` is not a grant or revoke. Refunds stay all-or-nothing, including `partially_refunded`.
-- Pin files and the RLS drain fixture, status/incident/goodwill docs, and `docs/DEMO_60S.md` are present. LaunchGate can still block later on a **live** status URL and a **timed** demo; this pass did not pretend those exist.
+- Pin files and the RLS drain fixture, status/incident/goodwill docs, and `docs/DEMO_60S.md` are present. The goodwill note was later archived at `design/archive/FOUNDING_GOODWILL_CREDIT.md` (**not sold / not buyer-facing**). LaunchGate can still block later on a published kit status page and a **timed** demo; this pass did not pretend those exist. The status page is not a yellowgram-operated decision API.
 
 ## P0
 

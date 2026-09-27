@@ -1,5 +1,7 @@
 # MayDo — LaunchGate DR4 Pack
 
+> **SKU shape (current):** self-host decision API process + thin TypeScript SDK (cache off by default) — the buyer runs Postgres, the API, and the worker. Source-available kit (zip + docs). You run this. yellowgram does not operate a hosted endpoint for this SKU. “Hosted decision API” and the founding goodwill credit below are a superseded 2026-09-26 draft. They are not sold.
+
 **To:** LaunchGate (4th DR — go/no-go on design → implement PR)  
 **From:** DR×3 design chain (DR1 → DR2 → DR3). Parent hands this pack; DR agents do not message you.  
 **Product:** MayDo — yellowgram entitlement kernel (`allow(actor, action)`)  
@@ -28,12 +30,12 @@ Primary attack surface for this gate: **DR3 §4 brief + §5 freeze + DR2 kill ta
 
 ## 2. Shape (locked)
 
-- **Hosted decision API** + **thin TypeScript SDK** (cache **off** by default; opt-in TTL ≤5s).  
+- **Self-host decision API process** + **thin TypeScript SDK** (cache **off** by default; opt-in TTL ≤5s). The buyer runs Postgres, the API, and the worker. Superseded draft, not the SKU: a yellowgram-hosted decision API.  
 - Stripe + Polar signed webhooks → HookSteel-style verify → unique event → same-txn N-outbox → drain → grant store.  
 - Read-only `allow(actor, action)`; **no money path**.  
 - Operator: **CLI writes + replay execute**; **read-mostly web**.  
 - Pricing context: ~$199 founding setup + ~$79/mo USD; contact hello@yellowgram.dev.  
-- Polar listing **dark** until zip/SHA/deliverables.
+- Live Polar delivers `maydo-0.1.1.zip`. The 2026-09-26 “listing dark until zip/SHA/deliverables” line is superseded. `maydo-0.1.0.zip` stays sealed.
 
 ---
 
@@ -49,7 +51,7 @@ Primary attack surface for this gate: **DR3 §4 brief + §5 freeze + DR2 kill ta
 | Customer portal / billing widgets | Schematic/Stigg surface |
 | SeatTruth **daily** reconcile **or auto-revoke orphans** | Explicitly later / DR3 R4 forbid |
 | Soft-WTP / cold invoices / waitlist monetization | Forbidden |
-| Fail-open default / “availability mode” | Hosted outage must deny |
+| Fail-open default / “availability mode” | When the buyer’s decision API process is down, `allow` must deny |
 | SDK cache-on default | Stale allows after revoke |
 | Quantity / seat prorated entitlements | All-or-nothing refunds only |
 | RLS bypass as sole tenant isolation | DR3 R1 reject |
@@ -72,7 +74,7 @@ Primary attack surface for this gate: **DR3 §4 brief + §5 freeze + DR2 kill ta
 7. ≤60s demo path honesty  
 8. `md_live_` vs `md_op_` separation; SDK never takes op keys  
 9. Audit degrade preserves **100% denies**  
-10. Status URL + incident template + founding goodwill credit policy before charge  
+10. Kit status page + incident template for the process the buyer runs. The founding goodwill credit is superseded and not sold.  
 
 **Known limits (P2 — not day-1):** embed SoR, mTLS, signed actor assertions, SeatTruth, web replay execute, multi-region/SLA, more PSPs, numeric credits-as-invoice, default `revoke_on_past_due`.
 

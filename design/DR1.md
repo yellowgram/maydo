@@ -1,15 +1,17 @@
 # MayDo — Design Review 1 (DR1)
 
+> **SKU shape (current):** self-host decision API process + thin TypeScript SDK (cache off by default) — the buyer runs Postgres, the API, and the worker. Source-available kit (zip + docs). You run this. yellowgram does not operate a hosted endpoint for this SKU. Sections below that say “hosted decision API” or “MayDo Hosted Ingest” are the superseded 2026-09-26 draft. That shape is not sold. yellowgram does not operate the decision API.
+
 **Product:** MayDo — entitlement kernel (`allow(actor, action)`)  
 **Pass:** progressive adversarial design #1 of 3  
-**Shape (locked for DR1):** hosted decision API + thin SDK (default after founder skipped shape widget 2026-09-26)  
+**Shape (current):** self-host decision API process + thin TypeScript SDK (cache off by default) — buyer runs Postgres/API/worker. Superseded draft, not the SKU: yellowgram-hosted decision API (2026-09-26).  
 **Pricing (USD):** ~$199 founding setup + ~$79/mo  
 > **Commercial lock (post-MVP):** $149 USD once — one organization, perpetual self-host. Launch $99 for the first 20 buyers on the same SKU (no second product, no coupons). Refund 14 days. Seller: Suthirth solutions. The ~$199 / ~$79 figures in this file are the 2026-09-26 design draft, not the price to charge.  
 **Contact:** hello@yellowgram.dev  
 **Date:** 2026-09-26 ET  
 **Status:** design only — no product code; do not collapse DR×3  
 
-Standing fences: Soft-WTP OFF · cold invoices FORBIDDEN · not Chargebee / Schematic-upmarket · SeatTruth daily reconcile **LATER** · Polar listing **dark** until zip/SHA/deliverables · HookSteel patterns only (do not modify that repo).
+Standing fences: Soft-WTP OFF · cold invoices FORBIDDEN · not Chargebee / Schematic-upmarket · SeatTruth daily reconcile **LATER** · live Polar delivers `maydo-0.1.1.zip` (the 2026-09-26 “listing dark until zip/SHA” fence is superseded) · HookSteel patterns only (do not modify that repo).
 
 ---
 
@@ -373,7 +375,7 @@ Abort or cut scope if any of these appear as “MVP must”:
 
 ## DR1 outcome
 
-- **Shape locked for subsequent passes:** hosted decision API + thin SDK.  
+- **Shape locked for subsequent passes:** self-host decision API process + thin SDK (buyer runs Postgres/API/worker). The “hosted decision API” wording in this pass is superseded and is not the commercial SKU.  
 - **Architecture recommended:** HookSteel-style verify → unique event → same-txn outbox → drain → grant store; read-only `allow`; four operator surfaces.  
 - **Next:** DR2 adversarial pass on open decisions (§8) and the hardest critiques (§7), still **no** product code and **no** collapsing DR×3.
 

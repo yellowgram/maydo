@@ -1,13 +1,15 @@
 # MayDo — MVP Scope (day-1)
 
+> **SKU shape (current):** self-host decision API process + thin TypeScript SDK (cache off by default) — the buyer runs Postgres, the API, and the worker. Source-available kit (zip + docs). You run this. yellowgram does not operate a hosted endpoint for this SKU. A 2026-09-26 draft in this file locked a yellowgram-hosted decision API. That shape is superseded and is not sold.
+
 **Product:** MayDo — entitlement kernel  
 **Promise:** one read API `allow(actor, action)` → “what may this actor do right now?”  
 **Feed:** Stripe and/or Polar webhooks + local grants  
-**Shape:** hosted decision API + thin SDK (default after founder skipped shape widget 2026-09-26)
+**Shape:** self-host decision API process + thin TypeScript SDK (cache off by default) — buyer runs Postgres/API/worker. Superseded draft, not the SKU: yellowgram-hosted decision API (2026-09-26).
 **Pricing (USD):** ~$199 founding setup + ~$79/mo  
 > **Commercial lock (post-MVP):** $149 USD once — one organization, perpetual self-host. Launch $99 for the first 20 buyers on the same SKU (no second product, no coupons). Refund 14 days. Seller: Suthirth solutions. The ~$199 / ~$79 figures in this file are the 2026-09-26 design draft, not the price to charge.  
 **Contact:** hello@yellowgram.dev  
-**Polar:** listing stays **dark** until Polar-listable (zip / SHA / deliverables)  
+**Polar:** live download is `maydo-0.1.1.zip` (SHA-256 `6175707689f2f6a3a88c818e700e2ad72e3193c3b31cb573ed29055f8bf83587`). The 2026-09-26 line “listing stays dark until Polar-listable” is superseded. `maydo-0.1.0.zip` stays sealed.  
 **Date:** 2026-09-26 ET — design pack only; no product code  
 
 Standing fences: Soft-WTP OFF · cold invoices FORBIDDEN · not Chargebee/Schematic-upmarket · SeatTruth daily reconcile is **LATER** · decision kernel only.
@@ -35,7 +37,7 @@ Standing fences: Soft-WTP OFF · cold invoices FORBIDDEN · not Chargebee/Schema
 - Details in `OPERATOR_NEEDS.md` and `MINIMUM_SUPPORT.md`.
 
 ### 5. Delivery honesty
-- Shape locked: hosted decision API + thin SDK; do not oversell embed/library SoR before DR×3 settles packaging.
+- Shape locked: self-host decision API process + thin SDK (buyer runs Postgres/API/worker); do not oversell embed/library SoR before DR×3 settles packaging. The earlier “hosted decision API” label is superseded.
 - Polar public listing **out** until deliverables + checksum exist.
 
 ---
@@ -63,7 +65,7 @@ Standing fences: Soft-WTP OFF · cold invoices FORBIDDEN · not Chargebee/Schema
 
 - SeatTruth-style daily reconcile of seats/entitlements vs billing truth.
 - Richer entitlement types (numeric limits, credits) **only** if still decision-kernel — never if they become invoicing.
-- Offline/embed library packaging only if hosted critical-path pain forces it post-founding (do not split roadmap day-1).
+- Offline/embed library packaging only if running the decision API process on the buyer’s critical path forces it post-founding (do not split roadmap day-1).
 - Additional providers only if kill criteria stay green.
 - Polar listing after ready gate (deliverable integrity).
 
@@ -98,7 +100,7 @@ Grounded in `yellowgram/hooksteel` @ `main` (`8dc6e10…`, inspected 2026-09-26 
 | Verify → unique event → same-txn outbox → drain | Grant store + `allow()` evaluation |
 | Stripe + Polar dual path, raw body | Action vocabulary / precedence |
 | Dead letter + replay CLI discipline | Operator allow-audit |
-| Chaos-minded HTTP status contract | Hosted tenancy + thin SDK packaging |
+| Chaos-minded HTTP status contract | Buyer-operated tenancy + thin SDK packaging |
 
 HookSteel remains a **billing event reliability kit** (side effects after commit). MayDo is a **decision kernel**. Share patterns; do not conflate products or modify HookSteel in this pass.
 

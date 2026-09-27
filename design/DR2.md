@@ -1,16 +1,18 @@
 # MayDo — Design Review 2 (DR2)
 
+> **SKU shape (current):** self-host decision API process + thin TypeScript SDK (cache off by default) — the buyer runs Postgres, the API, and the worker. Source-available kit (zip + docs). You run this. yellowgram does not operate a hosted endpoint for this SKU. “Hosted API” and “Hosted SLO” below are the superseded 2026-09-26 draft. That shape is not sold. Fail-closed still applies to the process the buyer runs.
+
 **Product:** MayDo — entitlement kernel (`allow(actor, action)`)  
 **Pass:** progressive adversarial design #2 of 3  
 **Builds on:** `design/DR1.md` (do not ignore; do not collapse DR×3)  
-**Shape (locked):** hosted decision API + thin SDK  
+**Shape (current):** self-host decision API process + thin TypeScript SDK (cache off by default) — buyer runs Postgres/API/worker. Superseded draft, not the SKU: yellowgram-hosted decision API.  
 **Pricing (USD):** ~$199 founding setup + ~$79/mo  
 > **Commercial lock (post-MVP):** $149 USD once — one organization, perpetual self-host. Launch $99 for the first 20 buyers on the same SKU (no second product, no coupons). Refund 14 days. Seller: Suthirth solutions. The ~$199 / ~$79 figures in this file are the 2026-09-26 design draft, not the price to charge.  
 **Contact:** hello@yellowgram.dev  
 **Date:** 2026-09-26 ET  
 **Status:** design only — no product code; DR3 still required before LaunchGate
 
-Standing fences (unchanged): Soft-WTP OFF · cold invoices FORBIDDEN · not Chargebee / Schematic-upmarket · SeatTruth daily reconcile **LATER** · Polar listing **dark** until zip/SHA/deliverables · HookSteel patterns only (do not modify that repo).
+Standing fences (unchanged): Soft-WTP OFF · cold invoices FORBIDDEN · not Chargebee / Schematic-upmarket · SeatTruth daily reconcile **LATER** · live Polar delivers `maydo-0.1.1.zip` (the 2026-09-26 “listing dark until zip/SHA” fence is superseded) · HookSteel patterns only (do not modify that repo).
 
 ---
 
@@ -20,7 +22,7 @@ Standing fences (unchanged): Soft-WTP OFF · cold invoices FORBIDDEN · not Char
 
 | Carry | Why it stays |
 | --- | --- |
-| Hosted API + thin SDK shape | Founder-locked; critical-path honesty belongs in SLO, not shape flip |
+| Self-host decision API process + thin SDK | Current SKU. The buyer runs Postgres/API/worker. The 2026-09-26 “hosted API” label is superseded; there is no yellowgram-operated SLO |
 | HookSteel pipeline: verify → unique event → same-txn outbox → drain → grant store | Reliability without inventing a new ingest product |
 | Read-only `allow`; no money path | Competitive kill line |
 | Stripe + Polar only; grant-oriented maps; ignore `invoice.paid` by default | Avoids double-grant and Chargebee creep |
@@ -40,7 +42,7 @@ Standing fences (unchanged): Soft-WTP OFF · cold invoices FORBIDDEN · not Char
 | SDK cache | Default-on would ship Stigg lore at $79 and stale allows after revoke |
 | Polar lifecycle types hand-waved | Wrong revoke signal (`canceled` vs `revoked`) = paid period denied early or forever open |
 | Actor resolution | Spoofable / missing metadata → silent wrong grants or silent no-grants |
-| Fail-open temptation on hosted outage | Buyer critical path; wrong default = free access during MayDo downtime |
+| Fail-open temptation when the buyer’s process is down | Buyer critical path; wrong default = free access while the decision API process they run is down. Not a yellowgram-operated outage. |
 | CLI vs console | Scope balloon risk for operator MVP |
 | Multi-action + partial refund | Split-brain grants; quantity math = kernel death |
 | `expired` reason code | Support “why denied?” vs minimal API surface |
@@ -137,7 +139,7 @@ DR2 resolves each DR1 §8 open decision below. Unresolved items are deferred to 
 | Audit write | **Async** enqueue (same process queue or outbox-style) of `{ts, tenant_id, actor, action, decision, reason, grant_ids, latency_bucket}`. |
 | Failure mode | If audit queue backs up: keep serving `allow`; alert operator; **never** fail-open the decision because audit failed. |
 | Volume guard | Day-1: attempt to enqueue **all** decisions. If sustained enqueue depth > threshold, auto-degrade to **100% deny + 1% allow sample** (config flag + health banner). Document. |
-| Retention (hosted) | **30 days** default; delete-on-request; export window for support. |
+| Retention (buyer-operated Postgres) | **30 days** default; delete-on-request; export window for support. Superseded label: “retention (hosted)” as a yellowgram default. |
 | Contents | No raw webhook JSONB / cardholder PII (DR1). |
 
 **Rationale:** Sync audit will break the p99 promise under page-view spam. Async + degrade-sample preserves support for denies (the #1 ask) without making MayDo an analytics product.
@@ -255,7 +257,9 @@ Sources: [Polar webhook events](https://polar.sh/docs/integrate/webhooks/events)
 
 ---
 
-### D10. Hosted SLO / fail-closed
+### D10. Fail-closed (superseded “hosted SLO” draft)
+
+The p99 and status lines below were a 2026-09-26 draft for a yellowgram-operated API. That SLO is not sold. Fail-closed still applies to the decision API process the buyer runs.
 
 **Lock:**
 
@@ -269,7 +273,7 @@ Sources: [Polar webhook events](https://polar.sh/docs/integrate/webhooks/events)
 | Drain down | Webhooks may 200 while grants lag — health shows outbox depth; not an excuse to fail open on `allow` |
 | Degraded mode | Prefer deny + status banner over stale SDK cache |
 
-**Rationale:** Hosted on the critical path means wrong allows during outage are worse than temporary denies. Buyers who cannot accept that need a later embed path — not a day-1 roadmap split (MVP_SCOPE Later).
+**Rationale:** The decision API process on the buyer’s critical path means wrong allows during an outage of that process are worse than temporary denies. Buyers who cannot accept that need a later embed path — not a day-1 roadmap split (MVP_SCOPE Later). yellowgram does not operate the process.
 
 ---
 
@@ -409,7 +413,7 @@ Fewer, sharper — anything here blocks LaunchGate or implementation honesty. Do
 
 5. **Polar enum drift tests:** Pin webhook type list + contract tests against Polar docs/changelog before implement; decide `past_due` mapping flag default and whether `order.refunded` payload field names need a fixture pack.
 
-6. **Public status + incident runbook:** Minimum status page automation vs manual; buyer communication template for fail-closed periods; founding refund policy if MayDo downtime exceeds X (money policy, not product feature).
+6. **Public status + incident runbook:** Minimum status page automation vs manual; communication template for fail-closed periods of the process the buyer runs. A founding credit for yellowgram-hosted downtime is superseded and not sold. The purchase refund is 14 days.
 
 7. **Decision key abuse / browser exposure:** Docs-only vs optional IP allowlist on tenant; confirm `md_op_` never in SDK.
 
@@ -432,7 +436,7 @@ DR3 must also run **LaunchGate checklist draft** (still design-only) against kil
 | Support >2 h/week sustained | **Watch** — CLI/console split + sticky FAQ + partial-refund honesty are support load risks |
 | Cannot demo allow + webhook grant + local override ≤60s | **Watch** — CLI path must hit this before Polar list |
 | Marketing “monetization platform” / “replace Chargebee” | **Clear** |
-| Fail-open default on hosted outage | **Clear** — locked fail-closed (D10) |
+| Fail-open default when the buyer’s process is down | **Clear** — locked fail-closed (D10). Not a yellowgram-hosted outage. |
 | SDK cache-on default | **Clear** — locked off (D5) |
 | Quantity / seat prorated entitlements | **Clear** — all-or-nothing refunds (D9); refuse under churn pressure |
 

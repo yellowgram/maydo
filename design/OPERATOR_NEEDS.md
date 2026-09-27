@@ -1,5 +1,7 @@
 # MayDo — Operator Needs
 
+> **SKU shape (current):** self-host decision API process + thin TypeScript SDK (cache off by default) — the buyer runs Postgres, the API, and the worker. Source-available kit (zip + docs). You run this. yellowgram does not operate a hosted endpoint for this SKU. A 2026-09-26 draft locked a yellowgram-hosted decision API. That shape is superseded and is not sold.
+
 **Product:** MayDo — entitlement kernel  
 **Audience:** founding-customer operator (founder-CTO or billing-adjacent eng)  
 **Date:** 2026-09-26 ET  
@@ -81,7 +83,7 @@ Yellowgram is not on-call for the customer’s dead-letter queue.
 
 ### Must do
 - Export a window for a single actor (CSV/JSON) for customer support tickets **without** dumping full PII payloads from raw webhooks.
-- Retention policy documented (buyer-owned if self-host; MayDo-hosted default + delete-on-request).
+- Retention policy documented. The buyer runs Postgres, so retention is buyer-owned. The kit default is 30 days, with delete-on-request. There is no yellowgram-hosted retention default.
 
 ### Must not
 - Turn audit into a product-analytics suite (Schematic temptation).
@@ -102,7 +104,7 @@ Yellowgram is not on-call for the customer’s dead-letter queue.
 
 ## UI vs CLI (shape locked)
 
-**Lock:** CLI writes + replay execute; **read-mostly web** (DR2 D8 / DR3). Product delivery shape is locked: hosted decision API + thin TypeScript SDK (cache off by default). Prefer boring tables over GTM packaging chrome.
+**Lock:** CLI writes + replay execute; **read-mostly web** (DR2 D8 / DR3). Product delivery shape is locked: self-host decision API process + thin TypeScript SDK (cache off by default) — the buyer runs Postgres, the API, and the worker. Source-available kit (zip + docs). You run this. yellowgram does not operate a hosted endpoint for this SKU. The earlier “hosted decision API” label is superseded. Prefer boring tables over GTM packaging chrome.
 
 | Surface | Minimum viable control |
 | --- | --- |

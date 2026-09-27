@@ -1,22 +1,24 @@
 # Incident template
 
-Manual status first. Do not invent a fail-open switch while you write this.
+For the decision API process you run. yellowgram does not operate that process, and this page is not a seller SLO. Manual notes first. Do not invent a fail-open switch while you write this.
 
-## Internal (in order)
+Source-available kit (zip + docs). You run this. yellowgram does not operate a hosted endpoint for this SKU.
 
-1. Set the status page (`status/index.html` / https://status.yellowgram.dev/maydo) to `degraded` or `outage`.
-2. If the impact is longer than 15 minutes, send the buyer note below to known founding contacts.
-3. Do not enable a fail-open flag. One must not exist. Do not tell buyers to cache `allow: true`.
-4. Prefer deny plus the status banner. Drain lag is not an outage of `allow` unless the API itself is failing.
-5. After recovery, set status back to `operational` and add a short note to the FAQ if the failure mode will recur.
+## When your process is down
 
-## Buyer note
+1. If you publish a copy of `status/index.html`, set that copy to `degraded` or `outage`. https://status.yellowgram.dev/maydo is kit guidance, not a yellowgram-operated decision API.
+2. Do not enable a fail-open flag. One must not exist. Do not tell callers to cache `allow: true`.
+3. Prefer deny. Drain lag is not an outage of `allow` unless the API process itself is failing.
+4. After recovery, set the note back to your normal kit state and add a short note to the FAQ if the failure mode will recur.
 
-Subject: MayDo availability
+## Note you can send your own users
 
-MayDo is fail-closed: during this outage `allow` returns deny / `maydo_unavailable`. Do not wrap the SDK with a fail-open fallback.
+Subject: Decision API process unavailable
 
-Status: https://status.yellowgram.dev/maydo
+The MayDo process we run is fail-closed: during this outage `allow` returns deny / `maydo_unavailable`. Do not wrap the SDK with a fail-open fallback.
+
+This is our self-hosted process. yellowgram does not operate it.
+
 ETA: <fill in>
 What still works: <Stripe/Polar charges are unaffected / webhooks may queue>
 What we need from you: nothing, unless you already wrapped the SDK.
