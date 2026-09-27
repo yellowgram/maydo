@@ -135,6 +135,8 @@ files = {}
 with tarfile.open(fileobj=io.BytesIO(archive), mode="r:") as tar:
     for member in tar.getmembers():
         name = member.name
+        if name.rstrip("/") == slug:
+            continue
         if not name.startswith(prefix):
             if name in {"pax_global_header"} or name.startswith("PaxHeader"):
                 continue
