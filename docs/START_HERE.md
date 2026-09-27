@@ -4,7 +4,7 @@ MayDo answers one question: **may this actor do this action right now?**
 
 Stripe and Polar keep the money. MayDo stores grants and serves `allow(actor, action)`. There is no invoicing, no credit wallet, and no seat reconcile job.
 
-Polar listing stays **dark** until a real deliverable exists. This repository is the kernel.
+Polar listing stays **dark** until https://status.yellowgram.dev/maydo is actually live. The buyer zip is built with `npm run pack:release`. See [POLAR_DELIVERABLES.md](POLAR_DELIVERABLES.md) and [STATUS.md](STATUS.md). This repository is the kernel.
 
 ## What you need
 
@@ -122,6 +122,6 @@ Public stub: [https://status.yellowgram.dev/maydo](https://status.yellowgram.dev
 
 ## Support
 
-Email hello@yellowgram.dev. Best effort, no SLA. The founding goodwill credit is an ops policy, not a product feature: [`FOUNDING_GOODWILL_CREDIT.md`](FOUNDING_GOODWILL_CREDIT.md).
+GitHub Issues on the private repository, for 60 days from purchase. Best effort, no SLA. See [`../SUPPORT.md`](../SUPPORT.md). Contact hello@yellowgram.dev. The goodwill note is an ops policy, not a product feature: [`FOUNDING_GOODWILL_CREDIT.md`](FOUNDING_GOODWILL_CREDIT.md).
 
 Out of scope mail gets [`OUT_OF_SCOPE_AUTOREPLY.md`](OUT_OF_SCOPE_AUTOREPLY.md).

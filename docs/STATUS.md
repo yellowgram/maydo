@@ -2,7 +2,7 @@
 
 **URL:** https://status.yellowgram.dev/maydo
 
-**LaunchGate block:** this repository does not deploy that host. `status/index.html` is the page to publish (operational / degraded / outage, fail-closed wording). Until that file is actually served at the URL, do not tell a buyer the status page is live, and do not list on Polar.
+**Polar-ready:** a listing may go light only after this URL is **actually live** (it serves `status/index.html`), `release/maydo-0.1.0.zip` is on `main`, and a GitHub Release has that zip attached. Founder go-live is already given via the Chief of Staff. CoS publishes under that standing go once those three are true. This repository does not deploy the status host. Until the URL responds with that page, do not tell a buyer the status page is live, and do not list on Polar. See [`POLAR_DELIVERABLES.md`](POLAR_DELIVERABLES.md).
 
 `maydo status` prints that URL and, when `API_BASE_URL` is set, the local `/healthz` result.
 

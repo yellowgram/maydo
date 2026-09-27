@@ -8,6 +8,8 @@
 **Date:** 2026-09-27  
 **Result:** P0 none found. P1s below are fixed on this branch. P2s are only in `docs/KNOWN_LIMITS.md`.
 
+> **Commercial lock (post-MVP):** $149 USD once — one organization, perpetual self-host. Launch $99 for the first 20 buyers on the same SKU (no second product, no coupons). Refund 14 days. Seller: Suthirth solutions. The ~$199 / ~$79 figures in this file are the 2026-09-27 review of the design draft, not the price to charge.
+
 This pass did not squash-merge, and it did not enable Soft-WTP, invoicing, SeatTruth auto-revoke, fail-open, quantity math, `md_op_` in the SDK, or a packaging studio.
 
 ## Decisions on CR2 opens

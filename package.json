@@ -18,7 +18,8 @@
     "start:api": "node dist/apps/api/src/main.js",
     "start:worker": "node dist/apps/worker/src/main.js",
     "start:console": "node dist/apps/console/src/main.js",
-    "maydo": "node dist/packages/cli/src/main.js"
+    "maydo": "node dist/packages/cli/src/main.js",
+    "pack:release": "bash scripts/pack-release.sh"
   },
   "dependencies": {
     "pg": "^8.14.1"

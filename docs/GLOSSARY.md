@@ -10,6 +10,7 @@
 | Local revoke | Operator deny. Always wins over webhook allows until you create a new local grant. |
 | Replay | Re-open one failed outbox row so drain can apply it again. |
 | Refund | Money movement in Stripe or Polar. MayDo does not perform it. Partial refunds still revoke every mapped action. |
+| Purchase refund | 14-day refund of the MayDo purchase itself. Not a webhook replay and not `order.refunded`. See `docs/REFUND_GLOSSARY.md`. |
 | Dead letter | Work that will not retry until an operator replays it, or an unresolved actor/action with nothing to grant. |
 | Expansion set | The N outbox rows produced from one provider event. Health shows sets that are not all `done`. |
 | Decision key | `md_live_` / `md_test_`. `allow` only. |

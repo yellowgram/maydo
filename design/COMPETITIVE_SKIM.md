@@ -3,6 +3,7 @@
 **Product:** MayDo — entitlement kernel (`allow(actor, action)` → what may this actor do right now?)  
 **Owner:** yellowgram / MayDo  
 **Pricing (product, USD):** ~$199 founding setup + ~$79/mo  
+> **Commercial lock (post-MVP):** $149 USD once — one organization, perpetual self-host. Launch $99 for the first 20 buyers on the same SKU (no second product, no coupons). Refund 14 days. Seller: Suthirth solutions. The ~$199 / ~$79 figures in this file are the 2026-09-26 design draft, not the price to charge.  
 **Contact:** hello@yellowgram.dev  
 **Date:** 2026-09-26 ET  
 **Sources:** public product/docs pages cited below. Third-party price aggregates noted where vendor pages are gated.
@@ -113,7 +114,7 @@ The wedge is **downmarket of Stigg/Schematic and sideways from Autumn**: a thin 
 - Stripe **and** Polar webhook ingest → grant materialization (HookSteel patterns).
 - Local / operator grants and overrides with audit.
 - Operator views: grants, webhook health, replay, allow audit.
-- Price honesty: **$199 founding setup + $79/mo** (USD product pricing); INR context for founder cost accounting only.
+- Price honesty (2026-09-26 draft): **$199 founding setup + $79/mo**. Superseded by the commercial lock at the top of this file ($149 once, launch $99 for the first 20 on the same SKU). INR stays founder cost accounting only.
 - Polar listing **dark** until zip/SHA/deliverables ready.
 
 ### One-line kill test
