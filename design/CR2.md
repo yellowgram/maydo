@@ -69,7 +69,7 @@ See `docs/KNOWN_LIMITS.md`. Still deferred: plaintext webhook secrets, `SECURITY
 
 ## LaunchGate
 
-Not new code blockers. Still blocks before a Polar listing, and still not built here: a **live** status URL (the stub and the policy docs exist) and a **timed** ≤60s demo (the script exists; CI does not clock it). RLS cross-tenant drain fixture and provider pin fixtures are in tree and still match the adapters.
+Not new code blockers. At CR2 time, a published status URL and a timed demo were still open. That “blocks before a Polar listing” line is superseded: live Polar already delivers `maydo-0.1.1.zip`. The status page is kit guidance, not a yellowgram-operated decision API. RLS cross-tenant drain fixture and provider pin fixtures are in tree and still match the adapters.
 
 ## Questions for CR3
 

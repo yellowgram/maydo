@@ -44,7 +44,9 @@ See `docs/KNOWN_LIMITS.md`. Short list: plaintext webhook secrets, `SECURITY DEF
 
 ---
 
-## 4. Remaining block before a Polar listing
+## 4. Kit status page (not a block on the live zip)
+
+Live Polar already delivers `maydo-0.1.1.zip` (SHA-256 `6175707689f2f6a3a88c818e700e2ad72e3193c3b31cb573ed29055f8bf83587`). The heading this section used to use, “remaining block before a Polar listing,” is superseded. `maydo-0.1.0.zip` stays sealed.
 
 **Kit status page.** Policy text for the process the buyer runs is `docs/STATUS.md`, `docs/INCIDENT_TEMPLATE.md`, and `status/index.html`. https://status.yellowgram.dev/maydo is not deployed by this repo and is not a yellowgram-operated decision API. The founding goodwill note was moved to `design/archive/FOUNDING_GOODWILL_CREDIT.md` (**not sold / not buyer-facing**). Do not show it before charging. It is not an SLA and it is not a credit.
 
@@ -56,7 +58,7 @@ RLS cross-tenant drain coverage and Polar/Stripe pin fixtures are in tree and ru
 
 **Go / no-go:** May the parent merge PR #2 (`cursor/implement-mvp-kernel-2963`)?
 
-- **Go** = CR1–CR3 P0/P1 fixes stand; residual P2 stays in `docs/KNOWN_LIMITS.md`; Polar listing still waits on a live status URL.  
+- **Go** = CR1–CR3 P0/P1 fixes stand; residual P2 stays in `docs/KNOWN_LIMITS.md`. The “Polar listing still waits” clause is superseded: live Polar already delivers `maydo-0.1.1.zip`.  
 - **No-go** = name the kill criterion or the regression. Do not rewrite CR history.
 
 Do not squash-merge as part of answering. Do not contact founding buyers. Do not enable Soft-WTP.

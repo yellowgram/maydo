@@ -2,7 +2,7 @@
 
 ## Unreleased (docs)
 
-Offer copy states the commercial SKU: a self-host kit. You run Postgres, the decision API process, and the worker. yellowgram does not operate a hosted endpoint for this SKU. Sealed `release/*.zip`, checksums, tags, and GitHub Releases are unchanged.
+Offer copy states the commercial SKU: a self-host kit. You run Postgres, the decision API process, and the worker. yellowgram does not operate a hosted endpoint for this SKU. Live Polar delivers `maydo-0.1.1.zip` (SHA-256 `6175707689f2f6a3a88c818e700e2ad72e3193c3b31cb573ed29055f8bf83587`). `release/maydo-0.1.0.zip` stays the sealed historical grandfather. Sealed `release/*.zip`, checksums, tags, and GitHub Releases are unchanged.
 
 ## 0.1.1
 

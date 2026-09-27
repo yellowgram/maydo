@@ -9,8 +9,8 @@ Stranger path for one self-hosted organization. Docs are the proof. Do not add a
 
 ## Before they are invited
 
-- [ ] The zip they were sent is `release/maydo-0.1.1.zip` (or the sealed `release/maydo-0.1.0.zip` if that was the tag on the order).
-- [ ] SHA-256 matches the row for that file in `docs/CHECKSUMS.md`. Do not regenerate `release/maydo-0.1.0.zip`.
+- [ ] The zip they were sent is the live Polar file `release/maydo-0.1.1.zip` (SHA-256 `6175707689f2f6a3a88c818e700e2ad72e3193c3b31cb573ed29055f8bf83587`), or the sealed `release/maydo-0.1.0.zip` if that was the tag on the order.
+- [ ] SHA-256 matches the row for that file in `docs/CHECKSUMS.md`. Do not regenerate either zip.
 - [ ] Their GitHub login is invited to private `yellowgram/maydo` with **Read** (Issues, no push).
 
 ## Happy path they must finish without a screenshare

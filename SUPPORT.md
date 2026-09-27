@@ -4,6 +4,8 @@ Source-available kit (zip + docs). You run this. yellowgram does not operate a h
 
 Polar delivers maydo-x.y.z.zip. There is no managed / always-on cloud service in this purchase.
 
+Live Polar delivers `maydo-0.1.1.zip` (SHA-256 `6175707689f2f6a3a88c818e700e2ad72e3193c3b31cb573ed29055f8bf83587`). Price $99 for the first 20 buyers, then $149, same SKU. Refund 14 days. `maydo-0.1.0.zip` on tag `v0.1.0` stays sealed as the historical grandfather.
+
 **Window:** GitHub Issues on private `yellowgram/maydo`, for **60 days** from purchase.  
 **Effort:** best effort, about **2 hours a week** across buyers. **No SLA.**  
 **Contact:** hello@yellowgram.dev · https://www.yellowgram.dev  

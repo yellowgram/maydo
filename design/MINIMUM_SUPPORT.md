@@ -80,7 +80,7 @@ If this path needs a founder screenshare, the product is not founding-ready.
 ## Money & listing hygiene
 
 - Product price stays **USD**: $149 once, launch $99 for the first 20 buyers on the same SKU. Founder may track costs in INR privately; do not India-localize the product wedge.
-- Polar listing stays **dark** until https://status.yellowgram.dev/maydo is actually live, the zip is on main, and a GitHub Release exists. Founder GO is already given via CoS.
+- Live Polar delivers `maydo-0.1.1.zip` (SHA-256 `6175707689f2f6a3a88c818e700e2ad72e3193c3b31cb573ed29055f8bf83587`). The earlier “listing stays dark until the zip is on main” line is superseded. `maydo-0.1.0.zip` stays sealed. Founder GO is already given via CoS.
 - Purchase refund is **14 days**. Do not conflate it with webhook replay or provider `order.refunded`. See `docs/REFUND_GLOSSARY.md`.
 
 ---

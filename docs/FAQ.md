@@ -6,6 +6,8 @@ No. This purchase is a self-host kit. You operate Postgres / the worker / the Ac
 
 Polar delivers maydo-x.y.z.zip. There is no managed / always-on cloud service in this purchase.
 
+Live Polar delivers `maydo-0.1.1.zip` (SHA-256 `6175707689f2f6a3a88c818e700e2ad72e3193c3b31cb573ed29055f8bf83587`). `maydo-0.1.0.zip` on tag `v0.1.0` is a sealed historical grandfather and is not the live download.
+
 Source-available kit (zip + docs). You run this. yellowgram does not operate a hosted endpoint for this SKU.
 
 ## The pilot lost access after cancel

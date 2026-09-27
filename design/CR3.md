@@ -73,7 +73,7 @@ See `docs/KNOWN_LIMITS.md`, including the five CR2 decisions above. Still deferr
 | Founding goodwill credit, before charge | **Superseded / not sold / not buyer-facing.** Archived at `design/archive/FOUNDING_GOODWILL_CREDIT.md`. The 2026-09-26 draft’s pro-rated `$79` after a hosted outage is not the offer. Purchase refund stays 14 days. yellowgram does not operate the decision API. |
 | ≤60s demo | `docs/START_HERE.md`, `docs/DEMO_60S.md`, `scripts/demo-60s.sh` (exits non-zero over 60s). CI asserts the same sequence in under 60s |
 | No kill creep | No invoicing, Soft-WTP, SeatTruth auto-revoke, fail-open, quantity math, `md_op_` SDK helper, or packaging studio |
-| **Live status URL** | **Remaining block before a Polar listing.** `status/index.html` is the page (operational / degraded / outage). This repo does not serve https://status.yellowgram.dev/maydo. Do not tell a buyer that host is live until the file is published there |
+| **Live status URL** | **Superseded as a listing block.** Live Polar already delivers `maydo-0.1.1.zip`. `status/index.html` is kit guidance, not a yellowgram-operated decision API. This repo does not serve https://status.yellowgram.dev/maydo. Do not treat `maydo-0.1.0.zip` as the live download. |
 
 Code review itself is ready for LaunchGate’s 4th pass. The live status host is an ops publish, not an unimplemented policy.
 

@@ -12,7 +12,7 @@
 **Date:** 2026-09-26 ET  
 **Status:** design only — no product code; DR3 still required before LaunchGate
 
-Standing fences (unchanged): Soft-WTP OFF · cold invoices FORBIDDEN · not Chargebee / Schematic-upmarket · SeatTruth daily reconcile **LATER** · Polar listing **dark** until zip/SHA/deliverables · HookSteel patterns only (do not modify that repo).
+Standing fences (unchanged): Soft-WTP OFF · cold invoices FORBIDDEN · not Chargebee / Schematic-upmarket · SeatTruth daily reconcile **LATER** · live Polar delivers `maydo-0.1.1.zip` (the 2026-09-26 “listing dark until zip/SHA” fence is superseded) · HookSteel patterns only (do not modify that repo).
 
 ---
 

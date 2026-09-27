@@ -35,7 +35,7 @@ Primary attack surface for this gate: **DR3 §4 brief + §5 freeze + DR2 kill ta
 - Read-only `allow(actor, action)`; **no money path**.  
 - Operator: **CLI writes + replay execute**; **read-mostly web**.  
 - Pricing context: ~$199 founding setup + ~$79/mo USD; contact hello@yellowgram.dev.  
-- Polar listing **dark** until zip/SHA/deliverables.
+- Live Polar delivers `maydo-0.1.1.zip`. The 2026-09-26 “listing dark until zip/SHA/deliverables” line is superseded. `maydo-0.1.0.zip` stays sealed.
 
 ---
 

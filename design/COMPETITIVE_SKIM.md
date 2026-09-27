@@ -117,7 +117,7 @@ The wedge is **downmarket of Stigg/Schematic and sideways from Autumn**: a thin 
 - Local / operator grants and overrides with audit.
 - Operator views: grants, webhook health, replay, allow audit.
 - Price honesty (2026-09-26 draft): **$199 founding setup + $79/mo**. Superseded by the commercial lock at the top of this file ($149 once, launch $99 for the first 20 on the same SKU). INR stays founder cost accounting only.
-- Polar listing **dark** until zip/SHA/deliverables ready.
+- Live Polar delivers `maydo-0.1.1.zip`. The 2026-09-26 “listing dark until zip/SHA/deliverables” line is superseded. `maydo-0.1.0.zip` stays sealed.
 
 ### One-line kill test
 > If the roadmap item exists to make money *without* answering `allow()`, cut it. If it exists to invoice, meter-for-invoice, or reconcile seats nightly — cut it from MVP.

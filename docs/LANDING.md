@@ -2,7 +2,7 @@
 
 Source-available kit (zip + docs). You run this. yellowgram does not operate a hosted endpoint for this SKU.
 
-MayDo is a decision kernel. It is not a monetization system of record. Polar delivers maydo-x.y.z.zip. There is no managed / always-on cloud service in this purchase.
+MayDo is a decision kernel. It is not a monetization system of record. Polar delivers maydo-x.y.z.zip. There is no managed / always-on cloud service in this purchase. Live Polar delivers `maydo-0.1.1.zip` (SHA-256 `6175707689f2f6a3a88c818e700e2ad72e3193c3b31cb573ed29055f8bf83587`). `maydo-0.1.0.zip` stays sealed as the historical grandfather.
 
 | | MayDo | Stigg, Schematic | Autumn |
 | --- | --- | --- | --- |

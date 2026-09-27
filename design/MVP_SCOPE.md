@@ -9,7 +9,7 @@
 **Pricing (USD):** ~$199 founding setup + ~$79/mo  
 > **Commercial lock (post-MVP):** $149 USD once — one organization, perpetual self-host. Launch $99 for the first 20 buyers on the same SKU (no second product, no coupons). Refund 14 days. Seller: Suthirth solutions. The ~$199 / ~$79 figures in this file are the 2026-09-26 design draft, not the price to charge.  
 **Contact:** hello@yellowgram.dev  
-**Polar:** listing stays **dark** until Polar-listable (zip / SHA / deliverables)  
+**Polar:** live download is `maydo-0.1.1.zip` (SHA-256 `6175707689f2f6a3a88c818e700e2ad72e3193c3b31cb573ed29055f8bf83587`). The 2026-09-26 line “listing stays dark until Polar-listable” is superseded. `maydo-0.1.0.zip` stays sealed.  
 **Date:** 2026-09-26 ET — design pack only; no product code  
 
 Standing fences: Soft-WTP OFF · cold invoices FORBIDDEN · not Chargebee/Schematic-upmarket · SeatTruth daily reconcile is **LATER** · decision kernel only.

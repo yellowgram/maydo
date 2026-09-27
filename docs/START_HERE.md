@@ -8,7 +8,7 @@ Stripe and Polar keep the money. MayDo stores grants and serves `allow(actor, ac
 
 Public license: PolyForm Noncommercial 1.0.0 (`LICENSE`). Commercial production use of a named tag: Suthirth Commercial Grant (`docs/COMMERCIAL_GRANT.md`). Claims: source-available = true. OSI open source = false. Soft-WTP is off.
 
-You run Postgres, the decision API process, and the worker. Polar delivers `maydo-x.y.z.zip`. There is no managed / always-on cloud service in this purchase. See [POLAR_DELIVERABLES.md](POLAR_DELIVERABLES.md) and [STATUS.md](STATUS.md). `status/index.html` is kit guidance, not a yellowgram-operated decision API. This repository is the kernel.
+You run Postgres, the decision API process, and the worker. Polar delivers `maydo-x.y.z.zip`. There is no managed / always-on cloud service in this purchase. Live Polar delivers `maydo-0.1.1.zip` (SHA-256 `6175707689f2f6a3a88c818e700e2ad72e3193c3b31cb573ed29055f8bf83587`). `release/maydo-0.1.0.zip` on tag `v0.1.0` stays sealed as the historical grandfather. See [POLAR_DELIVERABLES.md](POLAR_DELIVERABLES.md) and [STATUS.md](STATUS.md). `status/index.html` is kit guidance, not a yellowgram-operated decision API. This repository is the kernel.
 
 ## What you need
 
