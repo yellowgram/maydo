@@ -39,6 +39,6 @@ That script expects the API, worker, migrate, and bootstrap to be up already. It
 
 ## 4. Support boundary
 
-GitHub Issues on the private repo, **60 days** from purchase, best effort, **no SLA**. Read `SUPPORT.md` before opening one. Out of scope: `docs/OUT_OF_SCOPE_AUTOREPLY.md`.
+GitHub Issues on the public source-available repository `yellowgram/maydo`, **60 days** from purchase, best effort, **no SLA**. Anyone with a GitHub login can open Issues. Support answers only within 60 days of purchase for buyers. Read `SUPPORT.md` before opening one. Out of scope: `docs/OUT_OF_SCOPE_AUTOREPLY.md`.
 
 Kit status page, once published: https://status.yellowgram.dev/maydo. The file in this tree is `status/index.html`. It is kit release health and self-host ops guidance. This zip does not host that URL, and yellowgram does not operate the decision API.

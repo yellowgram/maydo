@@ -17,7 +17,7 @@ A paid Polar purchase of the **MayDo** self-host kit grants **one organization**
 | Duration | **Perpetual** for that named tag |
 | Rights | Use and modify the kit for that organization’s own commercial production purposes for the product’s intended function |
 | Delivery | Kit zip + checksums as listed on Polar for that tag (and GitHub access when the listing includes it) |
-| Support | GitHub Issues on the private repository for 60 days from purchase; best effort; no SLA unless a separate written agreement says otherwise |
+| Support | GitHub Issues on the public source-available repository `yellowgram/maydo` for 60 days from purchase; best effort; no SLA unless a separate written agreement says otherwise |
 | Refund | As stated on the Polar listing at purchase time (do not invent a longer window here) |
 
 Price for the current kit SKU is set on Polar / yellowgram.dev Current card ($99→$149 once same SKU (launch $99 first 20 orgs, then $149 on the same Polar product)). Do **not** put Polar checkout URLs in the README or inside the zip.

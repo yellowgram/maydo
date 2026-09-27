@@ -26,13 +26,13 @@ Tag `v0.1.0` keeps the grant text already shipped in that sealed zip. New tags u
 | --- | --- |
 | Product | MayDo — entitlement kernel |
 | Seller | Suthirth solutions |
-| Repo | private `yellowgram/maydo` |
+| Repo | public source-available `yellowgram/maydo` |
 | Shape | Source-available kit (zip + docs). You run this. yellowgram does not operate a hosted endpoint for this SKU. Self-host decision API process + thin TypeScript SDK (cache **off** by default) — buyer runs Postgres/API/worker. Stripe and Polar signed webhooks + local grants. |
 | Decision | `allow(actor, action)` only |
 | Price | **$149 USD once** — one organization, perpetual for the named tag |
 | Launch | **$99 USD** for the first **20** buyers on **this same SKU** |
 | Refund | **14 days** |
-| Support | GitHub Issues on the private repository, **60 days** from purchase, best effort, **no SLA**, ≤ ~2 h/week |
+| Support | GitHub Issues on the public source-available repository `yellowgram/maydo`, **60 days** from purchase, best effort, **no SLA**, ≤ ~2 h/week |
 | Contact | hello@yellowgram.dev · https://www.yellowgram.dev |
 | Status (buyer-facing) | https://status.yellowgram.dev/maydo |
 | Zip | Live Polar file: `release/maydo-0.1.1.zip` (prefix `maydo-0.1.1/`, comment `maydo-0.1.1`) |
@@ -63,7 +63,7 @@ Launch price: $99 USD for the first 20 organizations, on this same product. Then
 
 Refund: 14 days.
 
-Support: GitHub Issues on the private repository for 60 days from purchase. Best effort. No SLA. A ticket needs a failing test, a test-mode event id, or an allow repro. Do not send live secrets.
+Support: GitHub Issues on the public source-available repository yellowgram/maydo for 60 days from purchase. Best effort. No SLA. A ticket needs a failing test, a test-mode event id, or an allow repro. Do not send live secrets.
 
 Actor / Checkout metadata. Put maydo_actor and maydo_action (or maydo_actions) on Checkout or the Polar order from your server, not from the browser alone.
 
@@ -86,19 +86,18 @@ Seller: Suthirth solutions
 Two artifacts, one product. GitHub Release `v0.1.1` already carries the 0.1.1 zip. Do not regenerate it.
 
 1. **Zip.** Live Polar delivers `release/maydo-0.1.1.zip`. SHA-256 `6175707689f2f6a3a88c818e700e2ad72e3193c3b31cb573ed29055f8bf83587`, the same hex as the 0.1.1 row in `docs/CHECKSUMS.md`. The same bytes are on GitHub Release `v0.1.1`. Inside, paths start with `maydo-0.1.1/`. The zip comment is `maydo-0.1.1`. Entry times are pinned to `2026-09-26T00:00:00Z`. `docs/COMMERCIAL_GRANT.md` is in the zip. `release/maydo-0.1.0.zip` stays sealed as the historical grandfather and is not this download.
-2. **Private GitHub.** `yellowgram/maydo` stays private. The zip for the named tag is the perpetual copy the Suthirth Commercial Grant covers. Repo access is how the buyer opens Issues during the 60-day window.
+2. **Public source-available GitHub.** `yellowgram/maydo` is public. The zip for the named tag is the perpetual copy the Suthirth Commercial Grant covers. Anyone with a GitHub login can open Issues. Support answers only within the 60-day window from purchase for buyers.
 
 Do not regenerate `release/maydo-0.1.1.zip` or `release/maydo-0.1.0.zip`. If Polar's checksum field and that hex disagree, stop. Do not swap the live file back to 0.1.0.
 
-## Issues access (private repo)
+## Issues access (public repo)
 
-Buyers cannot open Issues until they are invited.
+Anyone with a GitHub login can open Issues on the public source-available repository `yellowgram/maydo`. No collaborator invite.
 
-1. Take the GitHub login from the buyer (email hello@yellowgram.dev is enough). No live secrets, no webhook signing keys.
-2. Invite that login to `yellowgram/maydo` with the **Read** role so they can open Issues and cannot push.
-3. The support window is **60 days from purchase**, not from the invite. Best effort. No SLA. Aggregate cap about **2 hours a week**.
-4. A ticket must include a failing test, a **test-mode** provider event id, or an `allow` repro (`actor`, `action`, expected, actual). Reject live secrets. Point out-of-scope asks at `docs/OUT_OF_SCOPE_AUTOREPLY.md` and `SUPPORT.md`.
-5. When the 60 days end, stop answering Issues. Removing the collaborator is not a grant revoke. They keep the zip and the Suthirth Commercial Grant for that named tag (`docs/COMMERCIAL_GRANT.md`). The public fence is PolyForm Noncommercial 1.0.0 (`LICENSE`).
+1. The buyer opens an Issue on `yellowgram/maydo`. No live secrets, no webhook signing keys.
+2. Support answers only within **60 days from purchase** for buyers. Best effort. No SLA. Aggregate cap about **2 hours a week**.
+3. A ticket must include a failing test, a **test-mode** provider event id, or an `allow` repro (`actor`, `action`, expected, actual). Reject live secrets. Point out-of-scope asks at `docs/OUT_OF_SCOPE_AUTOREPLY.md` and `SUPPORT.md`.
+4. When the 60 days end, stop answering Issues. Stopping answers is not a grant revoke. They keep the zip and the Suthirth Commercial Grant for that named tag (`docs/COMMERCIAL_GRANT.md`). The public fence is PolyForm Noncommercial 1.0.0 (`LICENSE`).
 
 ## CoS flip checklist
 
