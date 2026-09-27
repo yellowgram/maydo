@@ -126,6 +126,6 @@ Kit page: [https://status.yellowgram.dev/maydo](https://status.yellowgram.dev/ma
 
 ## Support
 
-GitHub Issues on the private repository, for 60 days from purchase. Best effort, no SLA. See [`../SUPPORT.md`](../SUPPORT.md). Contact hello@yellowgram.dev. The purchase refund is 14 days ([`REFUND_GLOSSARY.md`](REFUND_GLOSSARY.md)).
+GitHub Issues on the public source-available repository `yellowgram/maydo`, for 60 days from purchase. Best effort, no SLA. Anyone with a GitHub login can open Issues. Support answers only within 60 days of purchase for buyers. See [`../SUPPORT.md`](../SUPPORT.md). Contact hello@yellowgram.dev. The purchase refund is 14 days ([`REFUND_GLOSSARY.md`](REFUND_GLOSSARY.md)).
 
 Out of scope mail gets [`OUT_OF_SCOPE_AUTOREPLY.md`](OUT_OF_SCOPE_AUTOREPLY.md).

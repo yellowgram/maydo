@@ -3,15 +3,15 @@
 Stranger path for one self-hosted organization. Docs are the proof. Do not add a product feature to make this list pass.
 
 **Price:** $149 USD once. Launch $99 for the first 20 buyers on the same SKU.  
-**Support:** GitHub Issues, 60 days from purchase, best effort, no SLA, ≤ ~2 h/week.  
+**Support:** GitHub Issues on the public source-available repository `yellowgram/maydo`, 60 days from purchase, best effort, no SLA, ≤ ~2 h/week. Anyone with a GitHub login can open Issues. Support answers only within 60 days of purchase for buyers.  
 **Contact:** hello@yellowgram.dev  
 **License:** PolyForm Noncommercial 1.0.0 (`LICENSE`) plus the Suthirth Commercial Grant (`docs/COMMERCIAL_GRANT.md`). Claims: source-available = true. OSI open source = false. Soft-WTP is off.
 
-## Before they are invited
+## Before they open an Issue
 
 - [ ] The zip they were sent is the live Polar file `release/maydo-0.1.1.zip` (SHA-256 `6175707689f2f6a3a88c818e700e2ad72e3193c3b31cb573ed29055f8bf83587`), or the sealed `release/maydo-0.1.0.zip` if that was the tag on the order.
 - [ ] SHA-256 matches the row for that file in `docs/CHECKSUMS.md`. Do not regenerate either zip.
-- [ ] Their GitHub login is invited to private `yellowgram/maydo` with **Read** (Issues, no push).
+- [ ] The Issue is on the public source-available repository `yellowgram/maydo`. Anyone with a GitHub login can open it. No collaborator Read invite. Support answers only within 60 days of purchase for buyers.
 
 ## Happy path they must finish without a screenshare
 
