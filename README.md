@@ -4,16 +4,22 @@ MayDo is an entitlement kernel. The only hot-path question is `allow(actor, acti
 
 **Shape (locked):** hosted decision API + thin TypeScript SDK. SDK cache is **off** by default.
 
-**State:** Stripe and Polar signed webhooks, plus local grants. Decision-only — no invoicing, no Chargebee, no Soft-WTP, no cold invoices.
+**State:** Stripe and Polar signed webhooks, plus local grants. Decision-only — no invoicing, no Chargebee, no quantity math, no SeatTruth auto-revoke, no packaging studio.
 
-**Polar:** listing stays **dark** until zip / SHA / deliverables exist.
+## Commercial lock
 
-**Pricing (USD, context):** ~$199 founding setup + ~$79/mo  
-**Contact:** [hello@yellowgram.dev](mailto:hello@yellowgram.dev)
+- **Price:** $149 USD once. One organization. Perpetual self-host.
+- **Launch:** $99 USD for the first 20 buyers, on the same SKU. No second product. No coupons.
+- **Seller:** Suthirth solutions
+- **Refund:** 14 days. [`docs/REFUND_GLOSSARY.md`](docs/REFUND_GLOSSARY.md)
+- **Support:** GitHub Issues for 60 days from purchase. Best effort. No SLA. [`SUPPORT.md`](SUPPORT.md)
+- **Contact:** [hello@yellowgram.dev](mailto:hello@yellowgram.dev) · https://www.yellowgram.dev
+- **Soft-WTP:** off. Cold invoices are not sold. This README has no Checkout and no buy link.
+- **Polar:** CoS publishes under the standing founder go-live only after the pack (`release/maydo-0.1.0.zip`), a GitHub Release that uploads it, and a **live** [https://status.yellowgram.dev/maydo](https://status.yellowgram.dev/maydo). Page source is `status/index.html`. This repo does not host that URL. Listing stays dark until the URL actually responds. Packet: [`docs/POLAR_DELIVERABLES.md`](docs/POLAR_DELIVERABLES.md).
 
 ## Run
 
-Start here: [`docs/START_HERE.md`](docs/START_HERE.md). The 60-second path is [`docs/DEMO_60S.md`](docs/DEMO_60S.md).
+Purchasers start at [`BUYER_START_HERE.md`](BUYER_START_HERE.md). Operators start at [`docs/START_HERE.md`](docs/START_HERE.md). The 60-second path is [`docs/DEMO_60S.md`](docs/DEMO_60S.md).
 
 ```bash
 docker compose up -d

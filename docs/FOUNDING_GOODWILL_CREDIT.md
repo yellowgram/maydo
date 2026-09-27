@@ -2,23 +2,24 @@
 
 This is an operations policy. It is **not** an SLA, not an availability mode, and not a reason to fail open.
 
-Prices stay USD: about $199 founding setup and about $79 per month. Contact hello@yellowgram.dev.
+**Commercial lock:** $149 USD once for one organization, perpetual self-host. Launch price $99 USD for the first 20 buyers on the same SKU. No second product. No coupons. Seller: Suthirth solutions. Contact hello@yellowgram.dev.
 
-## If hosted MayDo is down
+There is no monthly fee. The 2026-09-26 draft that credited a pro-rated $79 month, and the $199 setup fee in that draft, are not the price to charge.
 
-If a MayDo-hosted outage lasts **more than 4 continuous hours** in a calendar month, yellowgram may issue a goodwill credit of the pro-rated `$79` month. That decision is manual, by email to hello@yellowgram.dev. It is not automatic, it is not monitored by the product, and it does not change `allow` behavior during the outage.
+## Purchase refund
 
-Buyer-side fail-open wrappers, buyer webhook misconfiguration, and buyer drain neglect are not MayDo-hosted outages.
+The purchase refund window is **14 days**. That is the money policy for the MayDo order. It is not a webhook replay and it is not a provider `order.refunded`. See [`REFUND_GLOSSARY.md`](REFUND_GLOSSARY.md).
 
-## Setup fee
+## If the process you host is down
 
-The `$199` founding setup is non-refundable after assisted connect completes (webhook endpoint verified and the first grant map confirmed). Write that down before charging.
+An outage does not fail open. The SDK returns `maydo_unavailable`. Anything beyond the 14-day purchase refund is a manual email decision at hello@yellowgram.dev. It is not automatic, it is not a priced credit, it is not monitored by the product, and it does not change `allow`.
 
-Canceling MayDo does not refund a completed setup. Monthly goodwill credits never refund the setup fee.
+Buyer-side fail-open wrappers, buyer webhook misconfiguration, and buyer drain neglect are not outages of the decision kernel.
 
 ## What this policy refuses
 
-- A paid SLA SKU at launch
+- A paid SLA SKU
 - Credits that depend on failing open
 - Invoice, tax, or dunning changes inside MayDo
 - Automatic refunds triggered by orphan-candidate reports
+- A second SKU, a coupon, or a monthly price

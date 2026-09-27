@@ -6,6 +6,8 @@
 **Date:** 2026-09-26 ET  
 **Mode:** Design review only — **do not implement product code**; do not collapse DR×3; do not Soft-WTP.
 
+> **Commercial lock (post-MVP):** $149 USD once — one organization, perpetual self-host. Launch $99 for the first 20 buyers on the same SKU (no second product, no coupons). Refund 14 days. Seller: Suthirth solutions. The ~$199 / ~$79 figures in this file are the 2026-09-26 design draft, not the price to charge.
+
 ---
 
 ## 1. Paths to read (in order)

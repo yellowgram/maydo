@@ -1,0 +1,13 @@
+# Landing honesty
+
+MayDo is a decision kernel. It is not a monetization system of record.
+
+| | MayDo | Stigg, Schematic | Autumn |
+| --- | --- | --- | --- |
+| Question | `allow(actor, action)` | Entitlements plus a catalog, metering, and packaging | `check`, and also `attach` / `track` against Stripe billing |
+| Money | Stripe and Polar stay the system of record | Monetization platform | Billing control layer that can create Stripe subscriptions and invoices |
+| What you self-host | Decision API, thin TypeScript SDK (cache off), webhooks, local grants | Plan studio, credits, widgets | Pricing and billing |
+
+Do not describe MayDo as Stigg, Schematic, Autumn, or Chargebee. A sentence about invoicing, metering-for-invoice, or a packaging studio is a different product.
+
+Price and the Polar listing live in `docs/POLAR_DELIVERABLES.md`. Soft-WTP is off.

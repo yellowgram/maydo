@@ -5,6 +5,7 @@
 **Builds on:** `design/DR1.md` (do not ignore; do not collapse DR×3)  
 **Shape (locked):** hosted decision API + thin SDK  
 **Pricing (USD):** ~$199 founding setup + ~$79/mo  
+> **Commercial lock (post-MVP):** $149 USD once — one organization, perpetual self-host. Launch $99 for the first 20 buyers on the same SKU (no second product, no coupons). Refund 14 days. Seller: Suthirth solutions. The ~$199 / ~$79 figures in this file are the 2026-09-26 design draft, not the price to charge.  
 **Contact:** hello@yellowgram.dev  
 **Date:** 2026-09-26 ET  
 **Status:** design only — no product code; DR3 still required before LaunchGate

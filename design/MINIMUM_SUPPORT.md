@@ -1,21 +1,23 @@
 # MayDo — Minimum Support Surface (founding customers)
 
 **Product:** MayDo — entitlement kernel  
-**Pricing (USD):** ~$199 founding setup + ~$79/mo  
+**Pricing (USD):** $149 once (one organization, perpetual self-host). Launch $99 for the first 20 buyers on the same SKU.  
 **Contact:** hello@yellowgram.dev  
 **Goal:** Keep founder support thin and predictable; strangers self-serve before opening a ticket.  
 **Date:** 2026-09-26 ET  
 
-Modeled loosely on HookSteel’s `MINIMUM_SUPPORT_CHECKLIST.md` discipline (docs replace the founder; boundary written once) — adapted for a **hosted/library decision product**, not a Polar zip kit.
+> **Commercial lock (post-MVP):** the 2026-09-26 draft of this file assumed ~$199 founding setup + ~$79/mo. Charge **$149 USD once**. Launch **$99** for the first **20** buyers on the **same SKU**. No second product. No coupons. Refund **14 days**. Support is GitHub Issues for **60 days**, best effort, no SLA. Buyer path: `SUPPORT.md` and `docs/MINIMUM_SUPPORT_CHECKLIST.md`.
+
+Modeled loosely on HookSteel’s `MINIMUM_SUPPORT_CHECKLIST.md` discipline (docs replace the founder; boundary written once). The buyer-facing path is now the self-host zip, not an assisted monthly setup.
 
 ---
 
 ## Support boundary (write once, link everywhere)
 
-- **Channel:** email `hello@yellowgram.dev` (and Issues only if a private founding space exists).
+- **Channel:** GitHub Issues on private `yellowgram/maydo` for 60 days from purchase. Email hello@yellowgram.dev is the contact, not a second support desk.
 - **Scope:** MayDo decision API, webhook ingest config, grant/operator tooling shipped with the product.
-- **Best-effort** founding support; **no SLA** until an explicit paid SLA SKU exists (do not invent one at launch).
-- **Time box (draft):** ≤2 h/week aggregate for founding cohort; if exceeded, pause new founders or productize the FAQ — do not Soft-WTP.
+- **Best-effort** support; **no SLA**. Do not invent a paid SLA SKU.
+- **Time box:** ≤2 h/week aggregate; if exceeded, pause new buyers or productize the FAQ — do not Soft-WTP.
 - **Require for any ticket:** environment (hosted vs embed), MayDo version/tag, provider (Stripe/Polar/test), failing `allow` example (`actor`, `action`, expected vs actual), webhook event id (test mode), redacted env booleans only — **no live secrets**.
 
 ---
@@ -27,7 +29,7 @@ Modeled loosely on HookSteel’s `MINIMUM_SUPPORT_CHECKLIST.md` discipline (docs
 2. **Decision contract** — documented `allow(actor, action)` request/response + reason codes.
 3. **Operator runbook** — grants CRUD, webhook health, replay, allow audit (`OPERATOR_NEEDS.md`).
 4. **Known limits** — no invoicing, no SeatTruth reconcile, no Polar public listing yet, Stripe+Polar only.
-5. **Founding setup** — one-time ~$199 covers assisted connect + first grant map (async email), not custom billing redesign.
+5. **Purchase** — $149 once (launch $99 for the first 20 on the same SKU) is the self-host zip and 60 days of Issues, not a custom billing redesign.
 
 ### Explicitly not included
 - Building the buyer’s product paywalls / UI.
@@ -75,9 +77,9 @@ If this path needs a founder screenshare, the product is not founding-ready.
 
 ## Money & listing hygiene
 
-- Product prices stay **USD** ($199 / $79). Founder may track costs in INR privately; do not India-localize the product wedge.
-- Polar listing **dark** until zip/SHA/deliverables (or hosted tenancy) are real — no vapor listing.
-- Refund / cancel policy for founding setup must be written before charging; do not conflate with webhook replay language.
+- Product price stays **USD**: $149 once, launch $99 for the first 20 buyers on the same SKU. Founder may track costs in INR privately; do not India-localize the product wedge.
+- Polar listing stays **dark** until https://status.yellowgram.dev/maydo is actually live, the zip is on main, and a GitHub Release exists. Founder GO is already given via CoS.
+- Purchase refund is **14 days**. Do not conflate it with webhook replay or provider `order.refunded`. See `docs/REFUND_GLOSSARY.md`.
 
 ---
 

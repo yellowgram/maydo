@@ -5,6 +5,7 @@
 **Feed:** Stripe and/or Polar webhooks + local grants  
 **Shape:** hosted decision API + thin SDK (default after founder skipped shape widget 2026-09-26)
 **Pricing (USD):** ~$199 founding setup + ~$79/mo  
+> **Commercial lock (post-MVP):** $149 USD once — one organization, perpetual self-host. Launch $99 for the first 20 buyers on the same SKU (no second product, no coupons). Refund 14 days. Seller: Suthirth solutions. The ~$199 / ~$79 figures in this file are the 2026-09-26 design draft, not the price to charge.  
 **Contact:** hello@yellowgram.dev  
 **Polar:** listing stays **dark** until Polar-listable (zip / SHA / deliverables)  
 **Date:** 2026-09-26 ET — design pack only; no product code  

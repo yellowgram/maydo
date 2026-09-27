@@ -4,6 +4,7 @@
 **Pass:** progressive adversarial design #1 of 3  
 **Shape (locked for DR1):** hosted decision API + thin SDK (default after founder skipped shape widget 2026-09-26)  
 **Pricing (USD):** ~$199 founding setup + ~$79/mo  
+> **Commercial lock (post-MVP):** $149 USD once — one organization, perpetual self-host. Launch $99 for the first 20 buyers on the same SKU (no second product, no coupons). Refund 14 days. Seller: Suthirth solutions. The ~$199 / ~$79 figures in this file are the 2026-09-26 design draft, not the price to charge.  
 **Contact:** hello@yellowgram.dev  
 **Date:** 2026-09-26 ET  
 **Status:** design only — no product code; do not collapse DR×3  
