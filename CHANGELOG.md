@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased (docs)
+
+Offer copy states the commercial SKU: a self-host kit. You run Postgres, the decision API process, and the worker. yellowgram does not operate a hosted endpoint for this SKU. Sealed `release/*.zip`, checksums, tags, and GitHub Releases are unchanged.
+
 ## 0.1.1
 
 License fence only. Entitlement kernel, webhook, and SDK behavior are unchanged.
@@ -16,7 +20,7 @@ License fence only. Entitlement kernel, webhook, and SDK behavior are unchanged.
 MVP on `main`, lineage `e933cd9`.
 
 - Entitlement kernel. The hot path is `allow(actor, action)` only.
-- Hosted decision API, worker, read-mostly console, CLI, and a thin TypeScript SDK. SDK cache is off by default.
+- Self-host decision API process, worker, read-mostly console, CLI, and a thin TypeScript SDK. SDK cache is off by default. The buyer runs Postgres, the API, and the worker. An earlier “hosted decision API” label is superseded and was not a yellowgram-operated SaaS.
 - Stripe and Polar signed webhooks, plus local grants.
 - Buyer zip: `release/maydo-0.1.0.zip`.
 

@@ -1,5 +1,9 @@
 # Support
 
+Source-available kit (zip + docs). You run this. yellowgram does not operate a hosted endpoint for this SKU.
+
+Polar delivers maydo-x.y.z.zip. There is no managed / always-on cloud service in this purchase.
+
 **Window:** GitHub Issues on private `yellowgram/maydo`, for **60 days** from purchase.  
 **Effort:** best effort, about **2 hours a week** across buyers. **No SLA.**  
 **Contact:** hello@yellowgram.dev · https://www.yellowgram.dev  
@@ -19,7 +23,7 @@ One of these:
 - a **test-mode** Stripe or Polar event id, or
 - an `allow` repro: `actor`, `action`, expected result, actual result, MayDo version
 
-Also say self-host vs a hosted process you run, and the provider (Stripe, Polar, or test).
+Also say whether the decision API process is one you run on your own machines or a process you host yourself. Both are yours. yellowgram does not run that process for this purchase. Name the provider (Stripe, Polar, or test).
 
 **No live secrets.** No live webhook signing keys, no live API keys, no production `DATABASE_URL`. Redacted booleans only.
 
@@ -41,4 +45,8 @@ Verifying the webhook signature proves the event came from Stripe or Polar. It d
 
 MayDo does not add a signed actor assertion in this release.
 
-Contract: [`docs/WEBHOOK_CONTRACT.md`](docs/WEBHOOK_CONTRACT.md). Setup: [`docs/START_HERE.md`](docs/START_HERE.md).
+## Is this a hosted / managed service?
+
+No. This purchase is a self-host kit. You operate Postgres / the worker / the Action.
+
+Contract: [`docs/WEBHOOK_CONTRACT.md`](docs/WEBHOOK_CONTRACT.md). Setup: [`docs/START_HERE.md`](docs/START_HERE.md). FAQ: [`docs/FAQ.md`](docs/FAQ.md).

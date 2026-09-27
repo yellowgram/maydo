@@ -2,17 +2,19 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>MayDo status</title>
+  <title>MayDo kit status</title>
   <style>
     body { font: 16px/1.45 ui-sans-serif, system-ui, sans-serif; margin: 40px; color: #1c1917; }
-    .pill { display: inline-block; background: #dcfce7; border: 1px solid #166534; padding: 4px 10px; }
+    .pill { display: inline-block; background: #f5f5f4; border: 1px solid #a8a29e; padding: 4px 10px; }
   </style>
 </head>
 <body>
-  <h1>MayDo</h1>
-  <p class="pill">operational</p>
-  <p>Manual status page for the hosted decision API. States: operational, degraded, outage.</p>
-  <p>During an outage, <code>allow</code> fails closed (<code>maydo_unavailable</code>). Do not wrap the SDK with a fail-open default.</p>
-  <p>This file is the publishable stub for <a href="https://status.yellowgram.dev/maydo">https://status.yellowgram.dev/maydo</a>. Update the pill by hand. It is not an SLA.</p>
+  <h1>MayDo kit</h1>
+  <p class="pill">self-host kit</p>
+  <p>Source-available kit (zip + docs). You run this. yellowgram does not operate a hosted endpoint for this SKU.</p>
+  <p>This page is kit release health and self-host ops guidance. It is not a status board for a decision API operated by yellowgram. There is no managed / always-on cloud service in this purchase.</p>
+  <p>Polar delivers <code>maydo-x.y.z.zip</code>. You run Postgres, the API, and the worker.</p>
+  <p>When the decision API process you run is down, <code>allow</code> fails closed (<code>maydo_unavailable</code>). Do not wrap the SDK with a fail-open default.</p>
+  <p>This file is the publishable stub for <a href="https://status.yellowgram.dev/maydo">https://status.yellowgram.dev/maydo</a>. Notes you add are for the kit and for the process you operate. Update them by hand. This page is not an SLA.</p>
 </body>
 </html>

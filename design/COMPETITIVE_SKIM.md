@@ -1,5 +1,7 @@
 # MayDo — Competitive Skim
 
+> **SKU shape (current):** self-host decision API process + thin TypeScript SDK (cache off by default) — the buyer runs Postgres, the API, and the worker. Source-available kit (zip + docs). You run this. yellowgram does not operate a hosted endpoint for this SKU. A 2026-09-26 draft locked a yellowgram-hosted decision API. That shape is superseded and is not sold.
+
 **Product:** MayDo — entitlement kernel (`allow(actor, action)` → what may this actor do right now?)  
 **Owner:** yellowgram / MayDo  
 **Pricing (product, USD):** ~$199 founding setup + ~$79/mo  
@@ -12,7 +14,7 @@
 
 ## Thesis (decision-only wedge)
 
-MayDo answers one question in the request path: **may this actor do this action right now?** State is fed by Stripe and/or Polar webhooks plus local grants. Shape locked: hosted decision API + thin TypeScript SDK (cache off by default).
+MayDo answers one question in the request path: **may this actor do this action right now?** State is fed by Stripe and/or Polar webhooks plus local grants. Shape locked: self-host decision API process + thin TypeScript SDK (cache off by default) — the buyer runs Postgres, the API, and the worker. The earlier “hosted decision API” label is superseded and is not a yellowgram-operated SaaS.
 
 **We are not** Chargebee, Schematic-upmarket monetization, Autumn-style billing SoR, Orb/Metronome/Lago invoicing, or SeatTruth daily reconcile. Soft-WTP and cold invoices are forbidden.
 

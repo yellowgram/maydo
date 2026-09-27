@@ -1,5 +1,7 @@
 # MayDo — Minimum Support Surface (founding customers)
 
+> **SKU shape (current):** self-host decision API process + thin TypeScript SDK (cache off by default) — the buyer runs Postgres, the API, and the worker. Source-available kit (zip + docs). You run this. yellowgram does not operate a hosted endpoint for this SKU. There is no hosted / managed SKU.
+
 **Product:** MayDo — entitlement kernel  
 **Pricing (USD):** $149 once (one organization, perpetual self-host). Launch $99 for the first 20 buyers on the same SKU.  
 **Contact:** hello@yellowgram.dev  
@@ -18,7 +20,7 @@ Modeled loosely on HookSteel’s `MINIMUM_SUPPORT_CHECKLIST.md` discipline (docs
 - **Scope:** MayDo decision API, webhook ingest config, grant/operator tooling shipped with the product.
 - **Best-effort** support; **no SLA**. Do not invent a paid SLA SKU.
 - **Time box:** ≤2 h/week aggregate; if exceeded, pause new buyers or productize the FAQ — do not Soft-WTP.
-- **Require for any ticket:** environment (hosted vs embed), MayDo version/tag, provider (Stripe/Polar/test), failing `allow` example (`actor`, `action`, expected vs actual), webhook event id (test mode), redacted env booleans only — **no live secrets**.
+- **Require for any ticket:** environment (the decision API process the buyer runs, vs embed), MayDo version/tag, provider (Stripe/Polar/test), failing `allow` example (`actor`, `action`, expected vs actual), webhook event id (test mode), redacted env booleans only — **no live secrets**. yellowgram does not operate that process.
 
 ---
 

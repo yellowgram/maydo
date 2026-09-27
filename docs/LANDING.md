@@ -1,6 +1,8 @@
 # Landing honesty
 
-MayDo is a decision kernel. It is not a monetization system of record.
+Source-available kit (zip + docs). You run this. yellowgram does not operate a hosted endpoint for this SKU.
+
+MayDo is a decision kernel. It is not a monetization system of record. Polar delivers maydo-x.y.z.zip. There is no managed / always-on cloud service in this purchase.
 
 | | MayDo | Stigg, Schematic | Autumn |
 | --- | --- | --- | --- |

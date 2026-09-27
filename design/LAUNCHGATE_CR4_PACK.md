@@ -46,7 +46,7 @@ See `docs/KNOWN_LIMITS.md`. Short list: plaintext webhook secrets, `SECURITY DEF
 
 ## 4. Remaining block before a Polar listing
 
-**Live status host.** Policy text is real (`docs/STATUS.md`, `docs/INCIDENT_TEMPLATE.md`, `docs/FOUNDING_GOODWILL_CREDIT.md`, `status/index.html`). https://status.yellowgram.dev/maydo is not deployed by this repo. Do not treat the URL as live until that file is published. The goodwill policy is the text to show before charging; it is not an SLA and it is not automatic.
+**Kit status page.** Policy text for the process the buyer runs is `docs/STATUS.md`, `docs/INCIDENT_TEMPLATE.md`, and `status/index.html`. https://status.yellowgram.dev/maydo is not deployed by this repo and is not a yellowgram-operated decision API. The founding goodwill note was moved to `design/archive/FOUNDING_GOODWILL_CREDIT.md` (**not sold / not buyer-facing**). Do not show it before charging. It is not an SLA and it is not a credit.
 
 RLS cross-tenant drain coverage and Polar/Stripe pin fixtures are in tree and run under `npm test`. The ≤60s path is `docs/START_HERE.md` + `scripts/demo-60s.sh`, and CI clocks the same sequence.
 

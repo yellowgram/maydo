@@ -2,7 +2,7 @@
 
 MayDo is an entitlement kernel. The only hot-path question is `allow(actor, action)`: may this actor do this action right now?
 
-**Shape (locked):** hosted decision API + thin TypeScript SDK. SDK cache is **off** by default.
+**Shape (locked):** Source-available kit (zip + docs). You run this. yellowgram does not operate a hosted endpoint for this SKU. Self-host decision API process + thin TypeScript SDK (cache **off** by default) — you run Postgres, the API, and the worker.
 
 **State:** Stripe and Polar signed webhooks, plus local grants. Decision-only — no invoicing, no Chargebee, no quantity math, no SeatTruth auto-revoke, no packaging studio.
 

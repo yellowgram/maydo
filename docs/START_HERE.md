@@ -1,12 +1,14 @@
 # START_HERE
 
+Source-available kit (zip + docs). You run this. yellowgram does not operate a hosted endpoint for this SKU.
+
 MayDo answers one question: **may this actor do this action right now?**
 
 Stripe and Polar keep the money. MayDo stores grants and serves `allow(actor, action)`. There is no invoicing, no credit wallet, and no seat reconcile job.
 
 Public license: PolyForm Noncommercial 1.0.0 (`LICENSE`). Commercial production use of a named tag: Suthirth Commercial Grant (`docs/COMMERCIAL_GRANT.md`). Claims: source-available = true. OSI open source = false. Soft-WTP is off.
 
-Polar listing stays **dark** until https://status.yellowgram.dev/maydo is actually live. The buyer zip is built with `npm run pack:release`. See [POLAR_DELIVERABLES.md](POLAR_DELIVERABLES.md) and [STATUS.md](STATUS.md). This repository is the kernel.
+You run Postgres, the decision API process, and the worker. Polar delivers `maydo-x.y.z.zip`. There is no managed / always-on cloud service in this purchase. See [POLAR_DELIVERABLES.md](POLAR_DELIVERABLES.md) and [STATUS.md](STATUS.md). `status/index.html` is kit guidance, not a yellowgram-operated decision API. This repository is the kernel.
 
 ## What you need
 
@@ -120,10 +122,10 @@ Decision keys in a browser reveal entitlement posture. Proxy `allow` through you
 
 ## Status
 
-Public stub: [https://status.yellowgram.dev/maydo](https://status.yellowgram.dev/maydo) (`status/index.html` is what you publish). Updates are manual. See [`STATUS.md`](STATUS.md) and [`INCIDENT_TEMPLATE.md`](INCIDENT_TEMPLATE.md).
+Kit page: [https://status.yellowgram.dev/maydo](https://status.yellowgram.dev/maydo) (`status/index.html` is the stub). It is release health and ops guidance for the process you run. It is not a seller SLO. See [`STATUS.md`](STATUS.md) and [`INCIDENT_TEMPLATE.md`](INCIDENT_TEMPLATE.md).
 
 ## Support
 
-GitHub Issues on the private repository, for 60 days from purchase. Best effort, no SLA. See [`../SUPPORT.md`](../SUPPORT.md). Contact hello@yellowgram.dev. The goodwill note is an ops policy, not a product feature: [`FOUNDING_GOODWILL_CREDIT.md`](FOUNDING_GOODWILL_CREDIT.md).
+GitHub Issues on the private repository, for 60 days from purchase. Best effort, no SLA. See [`../SUPPORT.md`](../SUPPORT.md). Contact hello@yellowgram.dev. The purchase refund is 14 days ([`REFUND_GLOSSARY.md`](REFUND_GLOSSARY.md)).
 
 Out of scope mail gets [`OUT_OF_SCOPE_AUTOREPLY.md`](OUT_OF_SCOPE_AUTOREPLY.md).

@@ -1,10 +1,12 @@
 # MayDo — Design Review 3 (DR3)
 
+> **SKU shape (current):** self-host decision API process + thin TypeScript SDK (cache off by default) — the buyer runs Postgres, the API, and the worker. Source-available kit (zip + docs). You run this. yellowgram does not operate a hosted endpoint for this SKU. The “hosted decision API” label and the founding goodwill credit in this file are a superseded 2026-09-26 draft. They are not sold. There is no seller hosted SLO.
+
 **Product:** MayDo — entitlement kernel (`allow(actor, action)`)  
 **Pass:** progressive adversarial design #3 of 3 (FINAL adversarial design pass)  
 **Builds on:** `design/DR2.md` (honor locked D1–D12 unless fatal; do not collapse DR×3)  
 **Next gate:** 4th DR = LaunchGate (`LAUNCHGATE_DR4_PACK.md`) — this pass does **not** contact LaunchGate  
-**Shape (locked):** hosted decision API + thin SDK  
+**Shape (current):** self-host decision API process + thin TypeScript SDK (cache off by default) — buyer runs Postgres/API/worker. Superseded draft, not the SKU: yellowgram-hosted decision API.  
 **Pricing (USD):** ~$199 founding setup + ~$79/mo  
 > **Commercial lock (post-MVP):** $149 USD once — one organization, perpetual self-host. Launch $99 for the first 20 buyers on the same SKU (no second product, no coupons). Refund 14 days. Seller: Suthirth solutions. The ~$199 / ~$79 figures in this file are the 2026-09-26 design draft, not the price to charge.  
 **Contact:** hello@yellowgram.dev  
@@ -136,15 +138,15 @@ DR3 re-read DR2 D1–D12 against kill criteria. **No fatal flaw found.** All twe
 
 ### R6. Public status + incident runbook
 
-**Lock:** Manual-first status page is enough for founding; fail-closed communication is documented; money policy is **support/refund**, not a product feature.
+**Lock:** Fail-closed communication is documented for the decision API process the buyer runs. Money policy that is sold is the 14-day purchase refund, not a product feature and not a seller SLO. A yellowgram-operated status probe is superseded and not sold.
 
 | Item | Day-1 |
 | --- | --- |
-| **Status URL** | Public page (static site or status host) linked from docs + onboarding. States: operational / degraded / outage. **Manual** updates acceptable; optional UptimeRobot-style probe later. |
-| **Probe** | At least one synthetic `allow` health check from outside the region (can be founder laptop cron → status flip). Not customer-facing SLA. |
-| **Buyer template** | Email/snippet: “MayDo is fail-closed: during outage `allow` returns deny / `maydo_unavailable`. Do not wrap SDK with fail-open. Status: \<url\>. ETA: …” |
-| **Founding refund policy** | If MayDo-hosted outage **> 4 continuous hours** in a calendar month: goodwill credit of **pro-rated `$79` month** (ops decision, email hello@). **Not** an SLA; not automatic; not a reason to fail-open. Setup `$199` non-refundable after assisted connect completes (write before charging — MINIMUM_SUPPORT). |
-| **Internal runbook** | (1) Flip status (2) Post template to known founding contacts if >15 min (3) Do not enable fail-open flag (flag must not exist) (4) Prefer deny + banner (5) Postmortem to docs FAQ |
+| **Status URL** | Kit page (`status/index.html`) for release health and the process the buyer runs. Not a multi-tenant board for a decision API operated by yellowgram. |
+| **Probe** | **Superseded / not sold** as a yellowgram cron against a hosted API. The buyer may check `/healthz` on the process they run. |
+| **Buyer template** | When the process the buyer runs is down, `allow` returns deny / `maydo_unavailable`. Do not wrap the SDK with fail-open. That outage is the buyer’s process. |
+| **Founding refund policy** | **Superseded / not sold.** The 2026-09-26 draft described a goodwill credit after a yellowgram-hosted outage. That credit is not buyer-facing and is not part of this purchase. The money policy that is sold is the 14-day purchase refund. When the decision API process the buyer runs is down, `allow` fails closed. That is not a seller outage and not a credit. |
+| **Internal runbook** | For the process the buyer runs: do not enable a fail-open flag (one must not exist); prefer deny. Do not page buyers as if yellowgram operates the API. |
 
 ---
 
@@ -333,7 +335,7 @@ START_HERE · Webhook status contract · Troubleshooting top 8 · Glossary · St
 
 ### Known limits (P2 candidates — not day-1)
 
-- Embed/offline library SoR (only if hosted pain forces post-founding)  
+- Embed/offline library SoR (only if running the buyer’s decision API process on the critical path forces it post-founding)  
 - mTLS / compliance auth  
 - Signed buyer actor assertions beyond Checkout metadata  
 - Auto-revoke / SeatTruth daily reconcile  
@@ -355,7 +357,7 @@ START_HERE · Webhook status contract · Troubleshooting top 8 · Glossary · St
 
 ### Frozen for implement PR (after LaunchGate **go** only)
 
-- Shape: hosted decision API + thin TypeScript SDK (cache off; TTL≤5s opt-in)  
+- Shape: self-host decision API process + thin TypeScript SDK (cache off; TTL≤5s opt-in) — buyer runs Postgres/API/worker. The “hosted decision API” wording is superseded and is not the SKU.  
 - Tenancy: shared Postgres + mandatory `tenant_id` + RLS + worker GUC-from-row (R1); Bearer `md_live_`/`md_test_`/`md_op_`  
 - Grants: boolean upsert `(tenant, actor, action, source, binding_id)`; no period-end SoR  
 - Precedence: explicit revoke wins; else active allow; else deny; provider revoke > non-sticky local allow; sticky opt-in with **required expires_at ≤90d**; local revoke always wins  
@@ -363,9 +365,9 @@ START_HERE · Webhook status contract · Troubleshooting top 8 · Glossary · St
 - Polar/Stripe maps per D6/R5; canceled/past_due no-op; `expansion_set_id` + N outbox; refunds all-or-nothing  
 - Actor: `maydo_actor` / `maydo_action(s)` → fallback maps → dead-letter  
 - Operator: CLI writes + replay execute; read-mostly web; mapping table + YAML seed  
-- SLO: fail-closed deny; single-region; p99 ≤100ms in-region evaluate+enqueue; distinct `expired`  
+- Fail-closed deny on the process the buyer runs; the 2026-09-26 p99 / single-region figure is a draft target, not a yellowgram-operated SLO; distinct `expired`  
 - Orphan: read-only report only (R4)  
-- Status + incident + founding goodwill credit policy (R6)  
+- Status + incident template for the process the buyer runs (R6). The founding goodwill credit is superseded and not sold.  
 - Key abuse: docs + optional IP allowlist; no `md_op_` in SDK (R7)  
 - Fences: Soft-WTP OFF, no cold invoices, no Chargebee/Schematic-upmarket, SeatTruth later, Polar dark until deliverables, HookSteel patterns only  
 

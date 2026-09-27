@@ -27,7 +27,7 @@ Tag `v0.1.0` keeps the grant text already shipped in that sealed zip. New tags u
 | Product | MayDo — entitlement kernel |
 | Seller | Suthirth solutions |
 | Repo | private `yellowgram/maydo` |
-| Shape | Hosted decision API + thin TypeScript SDK (cache **off** by default). The buyer self-hosts the API process. Stripe and Polar signed webhooks + local grants. |
+| Shape | Source-available kit (zip + docs). You run this. yellowgram does not operate a hosted endpoint for this SKU. Self-host decision API process + thin TypeScript SDK (cache **off** by default) — buyer runs Postgres/API/worker. Stripe and Polar signed webhooks + local grants. |
 | Decision | `allow(actor, action)` only |
 | Price | **$149 USD once** — one organization, perpetual for the named tag |
 | Launch | **$99 USD** for the first **20** buyers on **this same SKU** |
@@ -46,9 +46,13 @@ Not this product: invoicing, Chargebee, SeatTruth auto-revoke, quantity math, a 
 Paste the block below as the Polar description on the existing product. While the price charged is $99, leave both numbers in the text so buyer 21 is not surprised. Do not add a Checkout URL. Soft-WTP stays off.
 
 ```text
+Source-available kit (zip + docs). You run this. yellowgram does not operate a hosted endpoint for this SKU.
+
 MayDo is an entitlement kernel for one organization. It answers a single question: allow(actor, action) — may this actor do this action right now?
 
-You self-host it. Stripe and Polar stay the system of record for money. MayDo stores grants from signed Stripe and Polar webhooks, plus local grants, and serves the decision. The TypeScript SDK is thin and its cache is off by default.
+Polar delivers maydo-x.y.z.zip. There is no managed / always-on cloud service in this purchase.
+
+You run Postgres, the decision API process, and the worker. Stripe and Polar stay the system of record for money. MayDo stores grants from signed Stripe and Polar webhooks, plus local grants, and serves the decision. The TypeScript SDK is thin and its cache is off by default.
 
 Public license: PolyForm Noncommercial 1.0.0. Commercial production use requires a Suthirth Commercial Grant for one organization and the named release tag (docs/COMMERCIAL_GRANT.md in the kit). Source-available = true. OSI open source = false.
 
@@ -67,7 +71,7 @@ Verifying the webhook signature proves the event came from Stripe or Polar. It d
 
 MayDo does not add a signed actor assertion in this release.
 
-MayDo does not invoice, replace Chargebee, auto-revoke from a seat report, do quantity math, or ship a plan packaging studio. If MayDo is down, allow fails closed. The status page is manual and is not an SLA.
+MayDo does not invoice, replace Chargebee, auto-revoke from a seat report, do quantity math, or ship a plan packaging studio. When the decision API process you run is down, allow fails closed (deny). The kit status page is manual guidance for that process. It is not an SLA, and yellowgram does not operate the process.
 
 Status: https://status.yellowgram.dev/maydo
 Contact: hello@yellowgram.dev
@@ -129,8 +133,8 @@ Honest limits, not a roadmap:
 - `grants orphan-candidates` is a report. Nothing auto-revokes from it. SeatTruth daily reconcile is not in this product.
 - The SDK cache is off. HTTP 5xx, 429, and timeouts become `maydo_unavailable` (deny). There is no fail-open switch.
 - `md_op_` keys are refused by the SDK. Operator actions stay on the CLI.
-- Founding deploy is one API process. The allow rate limit does not cross processes.
-- Status updates are manual. Single region. Best effort. Not an SLA.
+- The process you run is one API process at founding. The allow rate limit does not cross processes.
+- Kit status notes are manual. Best effort. Not an SLA. yellowgram does not operate the decision API.
 - One purchase is one organization, self-hosted, for the named tag, under the Suthirth Commercial Grant. It is not a resale right for a competing boilerplate.
 
 ## Actor / Checkout metadata

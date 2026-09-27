@@ -1,6 +1,6 @@
 # @yellowgram/maydo
 
-Thin TypeScript client for the MayDo decision API.
+Thin TypeScript client for the MayDo decision API process you run. Point `baseUrl` at that process. yellowgram does not operate a hosted endpoint for this SKU.
 
 ```ts
 import { createClient } from "@yellowgram/maydo";

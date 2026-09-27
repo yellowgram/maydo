@@ -1,5 +1,13 @@
 # FAQ
 
+## Is this a hosted / managed service?
+
+No. This purchase is a self-host kit. You operate Postgres / the worker / the Action.
+
+Polar delivers maydo-x.y.z.zip. There is no managed / always-on cloud service in this purchase.
+
+Source-available kit (zip + docs). You run this. yellowgram does not operate a hosted endpoint for this SKU.
+
 ## The pilot lost access after cancel
 
 Three different cases:
@@ -18,7 +26,7 @@ MayDo revokes **all** actions on that order or subscription binding when it sees
 
 The SDK returns `{ "allow": false, "reason": "maydo_unavailable" }` on HTTP 5xx, HTTP 429, network errors, and timeouts. That is the contract. There is no availability mode and no fail-open flag. A malformed `allow` body is `{ "allow": false, "reason": "bad_request" }` with HTTP 400. That is the caller's request, not an outage. The SDK does not cache `maydo_unavailable`.
 
-Do not wrap the SDK in `catch { return true }`. A buyer who does that owns the open door. Point them at the status URL and this FAQ.
+Do not wrap the SDK in `catch { return true }`. A buyer who does that owns the open door. When the decision API process you run is down, `allow` denies. Point them at this FAQ. The kit status page is ops guidance, not a yellowgram-operated service.
 
 `tenant_disabled`, `auth_failed`, `bad_request`, `explicit_revoke`, `expired`, and `no_grant` are real decisions, not outages.
 
