@@ -20,6 +20,7 @@
     "start:worker": "node dist/apps/worker/src/main.js",
     "start:console": "node dist/apps/console/src/main.js",
     "maydo": "node dist/packages/cli/src/main.js",
+    "demo": "bash scripts/demo-60s.sh",
     "pack:release": "bash scripts/pack-release.sh"
   },
   "dependencies": {

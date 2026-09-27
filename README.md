@@ -20,9 +20,9 @@ Source of record: [PolyForm Noncommercial 1.0.0](LICENSE) for the public fence, 
 - **Soft-WTP:** off. Cold invoices are not sold. This README has no Checkout and no buy link.
 - **Polar:** This draft holds the live listing still. Swap the downloadable to `release/maydo-0.1.1.zip` only in the License Gate freeze→land window, after LaunchGate CR and merge. Tag `v0.1.0` and `release/maydo-0.1.0.zip` stay sealed. Packet: [`docs/POLAR_DELIVERABLES.md`](docs/POLAR_DELIVERABLES.md). Status page source is `status/index.html`. This repo does not host [https://status.yellowgram.dev/maydo](https://status.yellowgram.dev/maydo).
 
-## Run
+## Quick start
 
-Purchasers start at [`BUYER_START_HERE.md`](BUYER_START_HERE.md). Operators start at [`docs/START_HERE.md`](docs/START_HERE.md). The 60-second path is [`docs/DEMO_60S.md`](docs/DEMO_60S.md).
+Purchasers start at [`BUYER_START_HERE.md`](BUYER_START_HERE.md). Migrate, bootstrap, the API, and the worker must already be up ([`docs/START_HERE.md`](docs/START_HERE.md)). The fixture narrative is [`docs/DEMO_60S.md`](docs/DEMO_60S.md). `npm run demo` aliases [`scripts/demo-60s.sh`](scripts/demo-60s.sh): a signed Stripe test body with `maydo_actor` and `maydo_action` in metadata.
 
 ```bash
 docker compose up -d
@@ -30,7 +30,16 @@ npm install
 npm test
 npm run migrate
 node dist/packages/cli/src/main.js admin bootstrap --name "Founding"
+# API and worker already up — docs/START_HERE.md
+export API=http://127.0.0.1:3040
+export STRIPE_TOKEN=<bootstrap ingest token>
+export STRIPE_WEBHOOK_SECRET=<bootstrap webhook secret>
+export MAYDO_DECISION_KEY=<md_test_ or md_live_ key>
+export MAYDO_TENANT_ID=<tenant id>
+npm run demo
 ```
+
+Actor comes from buyer-server Checkout or order metadata. MayDo does not add a signed actor assertion.
 
 Runtime roles `maydo_api` and `maydo_worker` are not `BYPASSRLS`. The worker sets `maydo.tenant_id` from the outbox row it claimed.
 
