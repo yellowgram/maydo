@@ -1,12 +1,12 @@
 # Buyer start here
 
-You unpacked `maydo-0.1.0.zip`. Paths below are inside `maydo-0.1.0/`.
+You unpacked `maydo-0.1.1.zip`. Paths below are inside `maydo-0.1.1/`.
 
-MayDo answers `allow(actor, action)` for **one organization**. You self-host it. The license is `LICENSE`. Support limits are `SUPPORT.md`.
+MayDo answers `allow(actor, action)` for **one organization**. You self-host it. The public license is PolyForm Noncommercial 1.0.0 (`LICENSE`). Paid commercial use of this named tag is the Suthirth Commercial Grant (`docs/COMMERCIAL_GRANT.md`). Claims: source-available = true. OSI open source = false. Support limits are `SUPPORT.md`.
 
 ## 1. Unzip
 
-You should see `.env.example`, `LICENSE`, `package.json`, `docs/START_HERE.md`, `docs/DEMO_60S.md`, and `scripts/demo-60s.sh`. There is no `.env` in the zip. Do not commit a real one.
+You should see `.env.example`, `LICENSE`, `docs/COMMERCIAL_GRANT.md`, `package.json`, `docs/START_HERE.md`, `docs/DEMO_60S.md`, and `scripts/demo-60s.sh`. There is no `.env` in the zip. Do not commit a real one.
 
 ## 2. Boot
 

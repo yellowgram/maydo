@@ -8,14 +8,17 @@ MayDo is an entitlement kernel. The only hot-path question is `allow(actor, acti
 
 ## Commercial lock
 
-- **Price:** $149 USD once. One organization. Perpetual self-host.
+Source of record: [PolyForm Noncommercial 1.0.0](LICENSE) for the public fence, and the [Suthirth Commercial Grant](docs/COMMERCIAL_GRANT.md) for paid commercial use of a named tag. Seller: Suthirth solutions.
+
+- **Claims:** source-available = true. OSI open source = false.
+- **Price:** $149 USD once. One organization. Perpetual for the named tag.
 - **Launch:** $99 USD for the first 20 buyers, on the same SKU. No second product. No coupons.
 - **Seller:** Suthirth solutions
 - **Refund:** 14 days. [`docs/REFUND_GLOSSARY.md`](docs/REFUND_GLOSSARY.md)
 - **Support:** GitHub Issues for 60 days from purchase. Best effort. No SLA. [`SUPPORT.md`](SUPPORT.md)
 - **Contact:** [hello@yellowgram.dev](mailto:hello@yellowgram.dev) · https://www.yellowgram.dev
 - **Soft-WTP:** off. Cold invoices are not sold. This README has no Checkout and no buy link.
-- **Polar:** CoS publishes under the standing founder go-live only after the pack (`release/maydo-0.1.0.zip`), a GitHub Release that uploads it, and a **live** [https://status.yellowgram.dev/maydo](https://status.yellowgram.dev/maydo). Page source is `status/index.html`. This repo does not host that URL. Listing stays dark until the URL actually responds. Packet: [`docs/POLAR_DELIVERABLES.md`](docs/POLAR_DELIVERABLES.md).
+- **Polar:** This draft holds the live listing still. Swap the downloadable to `release/maydo-0.1.1.zip` only in the License Gate freeze→land window, after LaunchGate CR and merge. Tag `v0.1.0` and `release/maydo-0.1.0.zip` stay sealed. Packet: [`docs/POLAR_DELIVERABLES.md`](docs/POLAR_DELIVERABLES.md). Status page source is `status/index.html`. This repo does not host [https://status.yellowgram.dev/maydo](https://status.yellowgram.dev/maydo).
 
 ## Run
 

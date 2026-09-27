@@ -3,9 +3,13 @@
 **Window:** GitHub Issues on private `yellowgram/maydo`, for **60 days** from purchase.  
 **Effort:** best effort, about **2 hours a week** across buyers. **No SLA.**  
 **Contact:** hello@yellowgram.dev · https://www.yellowgram.dev  
-**Seller:** Suthirth solutions
+**Seller:** Suthirth solutions  
+**Public license:** PolyForm Noncommercial 1.0.0 (`LICENSE`)  
+**Commercial grant:** Suthirth Commercial Grant (`docs/COMMERCIAL_GRANT.md`) — one organization, perpetual for the named tag  
+**Claims:** source-available = true. OSI open source = false.  
+**Soft-WTP:** off
 
-The Chief of Staff invites your GitHub login with **Read** so you can open Issues. You cannot push. When the 60 days end, answers stop. You keep the zip and the one-organization self-host license.
+The Chief of Staff invites your GitHub login with **Read** so you can open Issues. You cannot push. When the 60 days end, answers stop. You keep the zip and the Suthirth Commercial Grant for that named tag.
 
 ## What a ticket must include
 

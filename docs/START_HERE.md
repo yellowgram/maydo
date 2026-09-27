@@ -4,6 +4,8 @@ MayDo answers one question: **may this actor do this action right now?**
 
 Stripe and Polar keep the money. MayDo stores grants and serves `allow(actor, action)`. There is no invoicing, no credit wallet, and no seat reconcile job.
 
+Public license: PolyForm Noncommercial 1.0.0 (`LICENSE`). Commercial production use of a named tag: Suthirth Commercial Grant (`docs/COMMERCIAL_GRANT.md`). Claims: source-available = true. OSI open source = false. Soft-WTP is off.
+
 Polar listing stays **dark** until https://status.yellowgram.dev/maydo is actually live. The buyer zip is built with `npm run pack:release`. See [POLAR_DELIVERABLES.md](POLAR_DELIVERABLES.md) and [STATUS.md](STATUS.md). This repository is the kernel.
 
 ## What you need

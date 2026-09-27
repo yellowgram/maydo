@@ -6,7 +6,7 @@
 **Goal:** Keep founder support thin and predictable; strangers self-serve before opening a ticket.  
 **Date:** 2026-09-26 ET  
 
-> **Commercial lock (post-MVP):** the 2026-09-26 draft of this file assumed ~$199 founding setup + ~$79/mo. Charge **$149 USD once**. Launch **$99** for the first **20** buyers on the **same SKU**. No second product. No coupons. Refund **14 days**. Support is GitHub Issues for **60 days**, best effort, no SLA. Buyer path: `SUPPORT.md` and `docs/MINIMUM_SUPPORT_CHECKLIST.md`.
+> **Commercial lock (post-MVP):** the 2026-09-26 draft of this file assumed ~$199 founding setup + ~$79/mo. Charge **$149 USD once**. Launch **$99** for the first **20** buyers on the **same SKU**. No second product. No coupons. Refund **14 days**. Support is GitHub Issues for **60 days**, best effort, no SLA. Public license: PolyForm Noncommercial 1.0.0 (`LICENSE`). Paid commercial use: Suthirth Commercial Grant (`docs/COMMERCIAL_GRANT.md`). Claims: source-available = true. OSI open source = false. Soft-WTP off. Buyer path: `SUPPORT.md` and `docs/MINIMUM_SUPPORT_CHECKLIST.md`.
 
 Modeled loosely on HookSteel’s `MINIMUM_SUPPORT_CHECKLIST.md` discipline (docs replace the founder; boundary written once). The buyer-facing path is now the self-host zip, not an assisted monthly setup.
 
@@ -89,4 +89,4 @@ If this path needs a founder screenshare, the product is not founding-ready.
 2. Buyers demand invoicing as “minimum support” → refuse; point to Stripe/Polar/Autumn/Chargebee — do not build it.
 3. Secret-in-ticket culture → close with template; do not debug live keys.
 
-*Last updated: 2026-09-26 ET — design pack only.*
+*Last updated: 2026-09-27 ET — license fence note on the commercial lock. Design pack otherwise unchanged.*
