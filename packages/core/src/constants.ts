@@ -2,6 +2,9 @@
 export const STICKY_MAX_DAYS = 90;
 export const STICKY_WARN_COUNT = 10;
 export const MAPPING_ACTION_CAP = 20;
+/** Actor and action strings. Checkout metadata and allow() both use these caps. */
+export const ACTOR_MAX_LEN = 256;
+export const ACTION_MAX_LEN = 256;
 export const ORPHAN_DAYS = 45;
 export const AUDIT_RETENTION_DAYS = 30;
 export const AUDIT_ALLOW_SAMPLE = 0.01;

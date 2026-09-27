@@ -84,7 +84,8 @@ export async function webhookHealth(client: pg.PoolClient, tenantId: string) {
   const depth = await client.query(
     `SELECT
        count(*) FILTER (WHERE state IN ('pending', 'leased'))::int AS outbox_pending,
-       count(*) FILTER (WHERE state = 'dead')::int AS outbox_dead
+       count(*) FILTER (WHERE state = 'dead')::int AS outbox_dead,
+       count(*) FILTER (WHERE last_error = 'skipped: operator_lock')::int AS skipped_operator_lock
      FROM maydo.outbox WHERE tenant_id = $1`,
     [tenantId],
   );

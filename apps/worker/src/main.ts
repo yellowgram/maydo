@@ -1,10 +1,17 @@
-import { AUDIT_RETENTION_DAYS } from "../../../packages/core/src/index.js";
+import { allowInsecureDevSecrets, AUDIT_RETENTION_DAYS, isProductionRuntime } from "../../../packages/core/src/index.js";
 import { assertRuntimeRole, drainAuditBatch, drainOnce, makePool, purgeAudit } from "../../../packages/db/src/index.js";
 
 const once = process.argv.includes("--once");
 const databaseUrl = process.env.DATABASE_URL_WORKER ?? process.env.DATABASE_URL;
 if (!databaseUrl) {
   console.error("DATABASE_URL_WORKER is required");
+  process.exit(1);
+}
+
+if (isProductionRuntime() && allowInsecureDevSecrets()) {
+  console.error(
+    "MAYDO_ALLOW_INSECURE_DEV_SECRETS cannot be set when NODE_ENV=production or MAYDO_REQUIRE_PRODUCTION=1",
+  );
   process.exit(1);
 }
 

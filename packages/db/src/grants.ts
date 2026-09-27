@@ -1,5 +1,5 @@
 import type pg from "pg";
-import { STICKY_MAX_DAYS } from "../../core/src/index.js";
+import { ACTION_MAX_LEN, ACTOR_MAX_LEN, STICKY_MAX_DAYS } from "../../core/src/index.js";
 import type { GrantView } from "../../core/src/evaluate.js";
 
 export class GrantWriteError extends Error {
@@ -101,6 +101,9 @@ export async function createLocalGrant(
 ): Promise<GrantRow> {
   const now = input.now ?? new Date();
   if (!input.actor || !input.action) throw new GrantWriteError("invalid", "actor and action are required");
+  if (input.actor.length > ACTOR_MAX_LEN || input.action.length > ACTION_MAX_LEN) {
+    throw new GrantWriteError("field_too_long", `actor and action must be at most ${ACTOR_MAX_LEN} characters`);
+  }
   if (input.sticky && !input.expiresAt) {
     throw new GrantWriteError("sticky_expires_required", "sticky grants require expires_at");
   }
@@ -113,10 +116,12 @@ export async function createLocalGrant(
       throw new GrantWriteError("sticky_horizon", `sticky expires_at must be within ${STICKY_MAX_DAYS} days`);
     }
   }
+  // Release deny precedence so this explicit re-grant is visible to allow().
+  // operator_lock stays set: a later paid webhook must not revive the binding
+  // the operator revoked. Access returns through the new local row.
   await client.query(
     `UPDATE maydo.grants
      SET precedence_class = 'allow',
-         operator_lock = false,
          updated_at = now()
      WHERE tenant_id = $1 AND actor = $2 AND action = $3
        AND (

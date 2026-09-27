@@ -21,3 +21,13 @@ Do not return 200 for a bad signature. Polar disables an endpoint after repeated
 `invoice.paid` is ignored. `subscription.canceled` and `subscription.past_due` are no-ops unless an operator explicitly sets `revoke_on_past_due` (default false). `subscription.updated` is never a grant or revoke, including when Polar also emits it beside `subscription.revoked`.
 
 A 200 means the event was accepted. It does not mean the grant is visible to `allow` yet. Watch outbox depth. Drain lag is not a reason to fail open.
+
+A grant that loses to `operator_lock` is still **200** at ingest and **done** after drain, with outbox `last_error = skipped: operator_lock`. It is not a dead letter. Replay would only hit the same lock. `maydo webhooks health` counts those rows.
+
+## Checkout metadata
+
+`maydo_actor` / `maydo_action` / `maydo_actions` are whatever the buyer’s server wrote onto Checkout or the Polar order. A signed webhook does not make that metadata a MayDo assertion. Set it on the server. Do not copy it from the browser.
+
+If `actor_maps` already names an actor for that provider customer and the metadata names a different one, a **grant** dead-letters with `actor_metadata_mismatch`. A **revoke** still revokes grants stored on the binding for the mapped actor, and records the same note. There is no signed actor token in this kernel.
+
+Actor and action strings are capped at 256 characters. Longer values dead-letter (`field_too_long`) or, on `POST /v1/allow`, return 400.

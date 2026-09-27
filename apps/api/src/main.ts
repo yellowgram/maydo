@@ -1,4 +1,4 @@
-import { assertKeyPepper, DEV_KEY_PEPPER } from "../../../packages/core/src/index.js";
+import { allowInsecureDevSecrets, assertKeyPepper, DEV_KEY_PEPPER, isProductionRuntime } from "../../../packages/core/src/index.js";
 import { assertRuntimeRole, makePool } from "../../../packages/db/src/pool.js";
 import { createApiServer, listen } from "./server.js";
 
@@ -9,9 +9,9 @@ if (!databaseUrl) {
   process.exit(1);
 }
 
-const production = process.env.NODE_ENV === "production";
+const production = isProductionRuntime();
 const pepper = process.env.MAYDO_KEY_PEPPER ?? DEV_KEY_PEPPER;
-assertKeyPepper(pepper, production);
+assertKeyPepper(pepper, { production, allowInsecureDevSecrets: allowInsecureDevSecrets() });
 
 const pool = makePool(databaseUrl, "maydo-api");
 await assertRuntimeRole(pool);

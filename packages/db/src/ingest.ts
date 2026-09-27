@@ -175,8 +175,9 @@ async function ingest(
       );
     }
     await client.query(
-      `UPDATE maydo.provider_events SET status = 'outboxed' WHERE tenant_id = $1 AND id = $2`,
-      [endpoint.tenant_id, inserted.rows[0].id],
+      `UPDATE maydo.provider_events SET status = 'outboxed', note = COALESCE($3, note)
+       WHERE tenant_id = $1 AND id = $2`,
+      [endpoint.tenant_id, inserted.rows[0].id, plan.note ?? null],
     );
     await client.query("COMMIT");
     await logHttp(pool, endpoint.tenant_id, provider, 200);

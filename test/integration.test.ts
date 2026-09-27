@@ -1,11 +1,12 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
+import { readFileSync } from "node:fs";
 import http from "node:http";
 import { after, before, describe, test } from "node:test";
 import pg from "pg";
-import { hashApiKey, mintKey, signPolar, signStripe } from "../packages/core/src/index.js";
+import { hashApiKey, mintKey, parseMappingSeed, signPolar, signStripe } from "../packages/core/src/index.js";
 import { createApiServer, listen } from "../apps/api/src/server.js";
-import { applyPayload, assertRuntimeRole, drainOnce, makePool, migrate, replayExecute, withTenant } from "../packages/db/src/index.js";
+import { applyPayload, assertRuntimeRole, drainOnce, makePool, migrate, replayExecute, seedMappings, withTenant } from "../packages/db/src/index.js";
 import { createLocalGrant, listGrantsForAllow, revokeGrant } from "../packages/db/src/grants.js";
 import { evaluateGrants } from "../packages/core/src/evaluate.js";
 import { createClient } from "../packages/sdk-ts/src/index.js";
@@ -228,6 +229,10 @@ describe("postgres kernel", { concurrency: 1 }, () => {
       assert.equal(sets.rowCount, 1);
       assert.equal(sets.rows[0].n, 2);
       assert.equal(await drainOnce(workerPool), true);
+      const midGrants = await migrator.query(`SELECT action FROM maydo.grants WHERE tenant_id = $1 AND state = 'active'`, [
+        tenant,
+      ]);
+      assert.equal(midGrants.rowCount, 1);
       const mid = await withTenant(apiPool, tenant, (client) =>
         client.query(
           `SELECT expansion_set_id FROM maydo.outbox WHERE tenant_id = $1
@@ -622,12 +627,18 @@ describe("postgres kernel", { concurrency: 1 }, () => {
       ],
     );
     assert.equal(await drainOnce(workerPool), true);
-    const still = await migrator.query<{ operator_lock: boolean; state: string }>(
-      `SELECT operator_lock, state FROM maydo.grants WHERE id = $1`,
+    const still = await migrator.query<{ operator_lock: boolean; state: string; last_error: string | null }>(
+      `SELECT g.operator_lock, g.state, o.last_error
+       FROM maydo.grants g
+       JOIN maydo.outbox o ON o.tenant_id = g.tenant_id
+       WHERE g.id = $1`,
       [grantId],
     );
     assert.equal(still.rows[0].state, "revoked");
     assert.equal(still.rows[0].operator_lock, true);
+    assert.equal(still.rows[0].last_error, "skipped: operator_lock");
+    const dead = await migrator.query(`SELECT count(*)::int AS n FROM maydo.dead_letters WHERE tenant_id = $1`, [tenant]);
+    assert.equal(dead.rows[0].n, 0);
     const denied = await loadDecision(tenant, "org_lock", "export.pdf");
     assert.equal(denied.allow, false);
     assert.equal(denied.reason, "explicit_revoke");
@@ -647,6 +658,39 @@ describe("postgres kernel", { concurrency: 1 }, () => {
     const restored = await loadDecision(tenant, "org_lock", "export.pdf");
     assert.equal(restored.allow, true);
     assert.equal(restored.reason, "grant_active");
+    const lockKept = await migrator.query<{ operator_lock: boolean; state: string }>(
+      `SELECT operator_lock, state FROM maydo.grants WHERE id = $1`,
+      [grantId],
+    );
+    assert.equal(lockKept.rows[0].operator_lock, true);
+    assert.equal(lockKept.rows[0].state, "revoked");
+
+    await migrator.query(
+      `INSERT INTO maydo.outbox (
+         tenant_id, expansion_set_id, provider, provider_event_id, adapter, idempotency_key, state, payload
+       ) VALUES ($1, gen_random_uuid(), 'stripe', 'evt_relock_2', 'grant', 'stripe|evt_relock_2|grant:export.pdf|org_lock', 'pending', $2::jsonb)`,
+      [
+        tenant,
+        JSON.stringify({
+          intent: "grant",
+          actor: "org_lock",
+          action: "export.pdf",
+          source: "stripe",
+          binding_id: "sub_lock",
+          source_event_id: "evt_relock_2",
+          event_ts: new Date(Date.now() + 120_000).toISOString(),
+        }),
+      ],
+    );
+    assert.equal(await drainOnce(workerPool), true);
+    const afterCreate = await migrator.query<{ operator_lock: boolean; state: string }>(
+      `SELECT operator_lock, state FROM maydo.grants WHERE id = $1`,
+      [grantId],
+    );
+    assert.equal(afterCreate.rows[0].operator_lock, true);
+    assert.equal(afterCreate.rows[0].state, "revoked");
+    const stillLocal = await loadDecision(tenant, "org_lock", "export.pdf");
+    assert.equal(stillLocal.allow, true);
   });
 
   test("decision-key IP allowlist ignores client X-Forwarded-For", async () => {
@@ -725,11 +769,216 @@ describe("postgres kernel", { concurrency: 1 }, () => {
       const grants = await request(port, "GET", "/grants", undefined, { cookie: `maydo_session=${cookie}` });
       assert.equal(grants.status, 200);
       assert.match(grants.text, /org_console/);
+      const authedReplay = await request(port, "POST", "/replay/execute", "id=1", {
+        cookie: `maydo_session=${cookie}`,
+        "content-type": "application/x-www-form-urlencoded",
+      });
+      assert.equal(authedReplay.status, 404);
+      assert.match(authedReplay.text, /CLI-only/);
 
       await migrator.query(`UPDATE maydo.api_keys SET revoked_at = now() WHERE tenant_id = $1 AND prefix = 'md_op_'`, [tenant]);
       const after = await request(port, "GET", "/grants", undefined, { cookie: `maydo_session=${cookie}` });
       assert.equal(after.status, 401);
       assert.doesNotMatch(after.text, /org_console/);
+    } finally {
+      server.close();
+    }
+  });
+
+  test("production console session cookie is Secure", async () => {
+    await truncate();
+    const tenant = await insertTenant("secure-cookie");
+    const op = mintKey("md_op_");
+    const secret = "cr2-console-session-secret-not-default";
+    await migrator.query(
+      `INSERT INTO maydo.api_keys (tenant_id, prefix, key_hash, scopes, last_four)
+       VALUES ($1, 'md_op_', $2, '{grants}', $3)`,
+      [tenant, hashApiKey(op.token, PEPPER), op.lastFour],
+    );
+    const server = createConsoleServer({
+      pool: apiPool,
+      pepper: PEPPER,
+      sessionSecret: secret,
+      production: true,
+    });
+    await listen(server, 0);
+    const port = (server.address() as { port: number }).port;
+    try {
+      const signedIn = await request(port, "POST", "/login", `api_key=${encodeURIComponent(op.token)}`, {
+        "content-type": "application/x-www-form-urlencoded",
+      });
+      const header = signedIn.headers["set-cookie"];
+      const line = Array.isArray(header) ? header[0] : header;
+      assert.match(line ?? "", /Secure/);
+      assert.match(line ?? "", /HttpOnly/);
+      assert.match(line ?? "", /SameSite=Lax/);
+    } finally {
+      server.close();
+    }
+  });
+
+  test("a missing event timestamp does not clobber a newer revoke", async () => {
+    await truncate();
+    const tenant = await insertTenant("ts-null");
+    await withTenant(workerPool, tenant, async (client) => {
+      await applyPayload(client, tenant, {
+        intent: "revoke",
+        actor: "org_ts",
+        action: "export.pdf",
+        source: "stripe",
+        binding_id: "sub_ts",
+        source_event_id: "evt_newer",
+        event_ts: new Date().toISOString(),
+      });
+      await applyPayload(client, tenant, {
+        intent: "grant",
+        actor: "org_ts",
+        action: "export.pdf",
+        source: "stripe",
+        binding_id: "sub_ts",
+        source_event_id: "evt_missing_ts",
+        event_ts: null,
+      });
+    });
+    const row = await migrator.query<{ state: string; source_event_id: string }>(
+      `SELECT state, source_event_id FROM maydo.grants WHERE tenant_id = $1`,
+      [tenant],
+    );
+    assert.equal(row.rows[0].state, "revoked");
+    assert.equal(row.rows[0].source_event_id, "evt_newer");
+  });
+
+  test("concurrent drain keeps the newer provider event", async () => {
+    await truncate();
+    const tenant = await insertTenant("race");
+    const older = new Date(Date.now() - 60_000).toISOString();
+    const newer = new Date().toISOString();
+    const insert = `INSERT INTO maydo.outbox (
+      tenant_id, expansion_set_id, provider, provider_event_id, adapter, idempotency_key, state, payload
+    ) VALUES ($1, gen_random_uuid(), 'stripe', $2, $3, $4, 'pending', $5::jsonb)`;
+    await migrator.query(insert, [
+      tenant,
+      "evt_race_grant",
+      "grant",
+      "stripe|evt_race_grant|grant:export.pdf|org_race",
+      JSON.stringify({
+        intent: "grant",
+        actor: "org_race",
+        action: "export.pdf",
+        source: "stripe",
+        binding_id: "sub_race",
+        source_event_id: "evt_race_grant",
+        event_ts: older,
+      }),
+    ]);
+    await migrator.query(insert, [
+      tenant,
+      "evt_race_revoke",
+      "revoke",
+      "stripe|evt_race_revoke|revoke:export.pdf|org_race",
+      JSON.stringify({
+        intent: "revoke",
+        actor: "org_race",
+        action: "export.pdf",
+        source: "stripe",
+        binding_id: "sub_race",
+        source_event_id: "evt_race_revoke",
+        event_ts: newer,
+      }),
+    ]);
+    await Promise.all([drainOnce(workerPool), drainOnce(workerPool)]);
+    const row = await migrator.query<{ state: string }>(`SELECT state FROM maydo.grants WHERE tenant_id = $1`, [tenant]);
+    assert.equal(row.rowCount, 1);
+    assert.equal(row.rows[0].state, "revoked");
+    const decision = await loadDecision(tenant, "org_race", "export.pdf");
+    assert.equal(decision.allow, false);
+    assert.equal(decision.reason, "explicit_revoke");
+  });
+
+  test("replay execute cannot reopen another tenant's dead letter", async () => {
+    await truncate();
+    const tenantA = await insertTenant("replay-a");
+    const tenantB = await insertTenant("replay-b");
+    await migrator.query(
+      `INSERT INTO maydo.outbox (
+         tenant_id, expansion_set_id, provider, provider_event_id, adapter, idempotency_key, state, payload
+       ) VALUES ($1, gen_random_uuid(), 'polar', 'evt_iso', 'grant', 'polar|evt_iso|grant:export.pdf', 'pending', '{"intent":"grant"}'::jsonb)`,
+      [tenantA],
+    );
+    assert.equal(await drainOnce(workerPool), true);
+    const dead = await migrator.query<{ id: string; outbox_id: string }>(
+      `SELECT id, outbox_id FROM maydo.dead_letters WHERE tenant_id = $1`,
+      [tenantA],
+    );
+    assert.equal(dead.rowCount, 1);
+    await assert.rejects(withTenant(apiPool, tenantB, (client) => replayExecute(client, tenantB, dead.rows[0].id)));
+    const state = await migrator.query<{ state: string }>(`SELECT state FROM maydo.outbox WHERE id = $1`, [
+      dead.rows[0].outbox_id,
+    ]);
+    assert.equal(state.rows[0].state, "dead");
+    const replayed = await migrator.query<{ replayed_at: Date | null }>(
+      `SELECT replayed_at FROM maydo.dead_letters WHERE id = $1`,
+      [dead.rows[0].id],
+    );
+    assert.equal(replayed.rows[0].replayed_at, null);
+  });
+
+  test("mapping seed does not overwrite a database row", async () => {
+    await truncate();
+    const tenant = await insertTenant("seed-wins");
+    const yaml = parseMappingSeed(readFileSync("config/mapping.seed.yaml", "utf8"));
+    await withTenant(apiPool, tenant, async (client) => {
+      const first = await seedMappings(client, tenant, yaml);
+      assert.ok(first >= 1);
+      await client.query(
+        `UPDATE maydo.mapping_config SET actions = '{kept.action}'
+         WHERE tenant_id = $1 AND provider = 'polar' AND event_type = 'order.paid'`,
+        [tenant],
+      );
+      const second = await seedMappings(client, tenant, yaml);
+      assert.equal(second, 0);
+      const row = await client.query<{ actions: string[] }>(
+        `SELECT actions FROM maydo.mapping_config
+         WHERE tenant_id = $1 AND provider = 'polar' AND event_type = 'order.paid'`,
+        [tenant],
+      );
+      assert.deepEqual(row.rows[0].actions, ["kept.action"]);
+    });
+  });
+
+  test("sticky without expires_at is rejected by the database", async () => {
+    await truncate();
+    const tenant = await insertTenant("sticky-check");
+    await assert.rejects(
+      migrator.query(
+        `INSERT INTO maydo.grants (
+           tenant_id, actor, action, source, binding_id, state, precedence_class, sticky
+         ) VALUES ($1, 'org', 'export.pdf', 'local', 'local_sticky', 'active', 'allow', true)`,
+        [tenant],
+      ),
+    );
+  });
+
+  test("allow rejects oversized actor strings", async () => {
+    await truncate();
+    const tenant = await insertTenant("long-actor");
+    const decision = mintKey("md_test_");
+    await insertKey(tenant, decision.token);
+    const server = createApiServer({ pool: apiPool, pepper: PEPPER, ratePerMin: 10_000 });
+    await listen(server, 0);
+    const port = (server.address() as { port: number }).port;
+    try {
+      const response = await request(
+        port,
+        "POST",
+        "/v1/allow",
+        JSON.stringify({ actor: "a".repeat(300), action: "export.pdf" }),
+        { authorization: `Bearer ${decision.token}`, "content-type": "application/json" },
+      );
+      assert.equal(response.status, 400);
+      assert.equal(response.json.error, "bad_request");
+      const queued = await migrator.query(`SELECT count(*)::int AS n FROM maydo.audit_queue WHERE tenant_id = $1`, [tenant]);
+      assert.equal(queued.rows[0].n, 0);
     } finally {
       server.close();
     }

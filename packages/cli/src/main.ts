@@ -2,8 +2,11 @@
 import { readFileSync } from "node:fs";
 import { randomUUID } from "node:crypto";
 import {
+  allowInsecureDevSecrets,
+  assertKeyPepper,
   DEFAULT_PUBLIC_STATUS_URL,
   DEV_KEY_PEPPER,
+  isProductionRuntime,
   STICKY_WARN_COUNT,
   parseMappingSeed,
   type KeyPrefix,
@@ -187,6 +190,8 @@ async function main(group: string | undefined, action: string | undefined, rest:
       if (group === "webhooks" && action === "health") {
         const health = await webhookHealth(client, tenantId);
         if (health.incomplete_sets.length > 0) console.error("incomplete expansion set");
+        const skipped = Number(health.outbox?.skipped_operator_lock ?? 0);
+        if (skipped > 0) console.error("skipped, operator lock — a paid event did not restore access");
         console.log(JSON.stringify(health, null, 2));
         return;
       }
@@ -316,7 +321,12 @@ function requiredEnv(name: string): string {
 }
 
 function pepper(): string {
-  return process.env.MAYDO_KEY_PEPPER ?? DEV_KEY_PEPPER;
+  const value = process.env.MAYDO_KEY_PEPPER ?? DEV_KEY_PEPPER;
+  assertKeyPepper(value, {
+    production: isProductionRuntime(),
+    allowInsecureDevSecrets: allowInsecureDevSecrets(),
+  });
+  return value;
 }
 
 function toCsv(rows: Record<string, unknown>[]): string {

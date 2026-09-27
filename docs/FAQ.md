@@ -24,7 +24,7 @@ Do not wrap the SDK in `catch { return true }`. A buyer who does that owns the o
 
 ## Why is the webhook 200 but `allow` still denies?
 
-The worker has not applied the outbox row yet, the event was ignored, or it dead-lettered (`actor_unresolved`). Check `maydo webhooks health` and `maydo replay list`.
+The worker has not applied the outbox row yet, the event was ignored, it dead-lettered (`actor_unresolved`, `actor_metadata_mismatch`), or a paid grant lost to `operator_lock`. Health then says `skipped, operator lock`: the event is done, not a dead letter, and replay will not restore access. `grants create` adds a local allow without unlocking that binding. Check `maydo webhooks health` and `maydo replay list`.
 
 ## Can I turn `subscription.canceled` into an immediate revoke?
 

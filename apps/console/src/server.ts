@@ -46,6 +46,7 @@ export function createConsoleServer(opts: ConsoleOptions): Server {
   });
   const trustProxy = opts.trustProxy ?? false;
   const statusUrl = opts.statusUrl ?? "https://status.yellowgram.dev/maydo";
+  const secureCookie = Boolean(opts.production);
 
   return createServer(async (req, res) => {
     const url = new URL(req.url ?? "/", "http://localhost");
@@ -53,7 +54,7 @@ export function createConsoleServer(opts: ConsoleOptions): Server {
       if (req.method === "GET" && url.pathname === "/") return sendHtml(res, loginPage());
       if (req.method === "POST" && url.pathname === "/login") return login(req, res, opts, trustProxy);
       if (req.method === "POST" && url.pathname === "/logout") {
-        res.writeHead(302, { location: "/", "set-cookie": sessionCookie("", 0) });
+        res.writeHead(302, { location: "/", "set-cookie": sessionCookie("", 0, secureCookie) });
         res.end();
         return;
       }
@@ -89,9 +90,15 @@ export function createConsoleServer(opts: ConsoleOptions): Server {
         const [events, health] = await withTenant(opts.pool, session.tenantId, async (client) => {
           return [await listEvents(client, session.tenantId), await webhookHealth(client, session.tenantId)] as const;
         });
-        const banner = health.incomplete_sets.length
-          ? `<p class="banner">incomplete expansion set — check siblings before assuming the product is fully entitled</p>`
-          : "";
+        const skipped = Number(health.outbox?.skipped_operator_lock ?? 0);
+        const banner = [
+          health.incomplete_sets.length
+            ? `<p class="banner">incomplete expansion set — check siblings before assuming the product is fully entitled</p>`
+            : "",
+          skipped > 0
+            ? `<p class="banner">skipped, operator lock — a paid event did not restore access (${skipped})</p>`
+            : "",
+        ].join("");
         return sendHtml(
           res,
           layout("Webhooks", `${banner}<pre>${esc(JSON.stringify(health, null, 2))}</pre>${table(events as Record<string, unknown>[])}`, statusUrl),
@@ -210,7 +217,7 @@ async function login(req: IncomingMessage, res: ServerResponse, opts: ConsoleOpt
   const cookie = signSession(`${key.tenant_id}|${exp}|${key.key_id}`, opts.sessionSecret);
   res.writeHead(302, {
     location: "/grants",
-    "set-cookie": sessionCookie(cookie),
+    "set-cookie": sessionCookie(cookie, 12 * 60 * 60, Boolean(opts.production)),
   });
   res.end();
 }
@@ -249,7 +256,7 @@ async function requireOperator(
   if (!key || key.revoked_at || expired || key.prefix !== "md_op_" || !ipAllowed(ip, parsePgTextArray(key?.ip_allowlist))) {
     res.writeHead(401, {
       "content-type": "text/html; charset=utf-8",
-      "set-cookie": sessionCookie("", 0),
+      "set-cookie": sessionCookie("", 0, Boolean(opts.production)),
     });
     res.end(loginPage("Operator session rejected."));
     return null;
@@ -288,8 +295,9 @@ function verifySession(token: string, secret: string): string | null {
   return Buffer.from(body, "base64url").toString("utf8");
 }
 
-function sessionCookie(value: string, maxAge = 12 * 60 * 60): string {
-  return `maydo_session=${value}; HttpOnly; SameSite=Lax; Path=/; Max-Age=${maxAge}`;
+function sessionCookie(value: string, maxAge = 12 * 60 * 60, secure = false): string {
+  const secureAttr = secure ? "; Secure" : "";
+  return `maydo_session=${value}; HttpOnly; SameSite=Lax; Path=/; Max-Age=${maxAge}${secureAttr}`;
 }
 
 function loginPage(error?: string): string {

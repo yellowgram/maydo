@@ -26,12 +26,26 @@ export MAYDO_TENANT_ID=<tenant id>
 export DATABASE_URL_API=postgres://maydo_api:maydo_api_dev@127.0.0.1:5432/maydo
 export DATABASE_URL_WORKER=postgres://maydo_worker:maydo_worker_dev@127.0.0.1:5432/maydo
 export MAYDO_KEY_PEPPER=dev-pepper-change-me
+export MAYDO_ALLOW_INSECURE_DEV_SECRETS=1
 export MAYDO_SESSION_SECRET="$(openssl rand -hex 32)"
 ```
 
 The API, worker, and console refuse to start if the database role is superuser or `BYPASSRLS`. Do not point runtime processes at the migrator.
 
-The console refuses the public dev session secret. For a local-only console you may instead set `MAYDO_ALLOW_INSECURE_DEV_SECRETS=1` with `MAYDO_SESSION_SECRET=dev-session-change-me`. Never do that when `NODE_ENV=production`.
+The dev pepper and the dev session secret are public. Local boot must set `MAYDO_ALLOW_INSECURE_DEV_SECRETS=1` to use them. Never set that flag on a founding host.
+
+## Founding deploy
+
+Set every one of these. A missing or default secret fails closed (the process exits).
+
+- `NODE_ENV=production`
+- `MAYDO_REQUIRE_PRODUCTION=1` so the same guards run if the host forgets `NODE_ENV`
+- `MAYDO_KEY_PEPPER` from `openssl rand -hex 32` (the value `dev-pepper-change-me` is refused)
+- `MAYDO_SESSION_SECRET` at least 32 characters and not `dev-session-change-me`
+- Do **not** set `MAYDO_ALLOW_INSECURE_DEV_SECRETS`
+- `DATABASE_URL_API` is `maydo_api`. `DATABASE_URL_WORKER` is `maydo_worker`. Neither is the migrator.
+
+The production console cookie is `Secure`. Terminate TLS in front of the console. Leave `MAYDO_TRUST_PROXY` unset unless one reverse proxy is the only path to the process.
 
 IP allowlists use the socket address. Set `MAYDO_TRUST_PROXY=1` only when a reverse proxy is the only path to the process; the rightmost `X-Forwarded-For` hop is then the client.
 
@@ -48,7 +62,7 @@ Webhook URLs:
 - `POST /v1/webhooks/stripe/<ingest_token>`
 - `POST /v1/webhooks/polar/<ingest_token>`
 
-Put `maydo_actor` and `maydo_action` (or `maydo_actions`) on the Checkout or Polar order from **your server**, not from the browser alone.
+Put `maydo_actor` and `maydo_action` (or `maydo_actions`) on the Checkout or Polar order from **your server**, not from the browser alone. That metadata is trusted only as far as the code that wrote it. MayDo does not add a signed actor assertion. If an operator actor map is set and Checkout names a different actor, the grant is dead-lettered instead of applied.
 
 ## First allow
 

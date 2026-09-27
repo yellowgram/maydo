@@ -1,6 +1,8 @@
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from "node:http";
 import type pg from "pg";
 import {
+  ACTION_MAX_LEN,
+  ACTOR_MAX_LEN,
   DEFAULT_AUDIT_DEGRADE_DEPTH,
   evaluateGrants,
   clientIpFromRequest,
@@ -86,6 +88,9 @@ async function handleAllow(
     return send(res, 400, { error: "bad_request" });
   }
   if (typeof body.actor !== "string" || typeof body.action !== "string" || !body.actor || !body.action) {
+    return send(res, 400, { error: "bad_request" });
+  }
+  if (body.actor.length > ACTOR_MAX_LEN || body.action.length > ACTION_MAX_LEN) {
     return send(res, 400, { error: "bad_request" });
   }
   const started = Date.now();
