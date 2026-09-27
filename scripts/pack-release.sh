@@ -120,6 +120,8 @@ def omitted(rel: str) -> bool:
 archive = subprocess.check_output(
     [
         "git",
+        "-c",
+        "tar.umask=0002",
         "archive",
         "--format=tar",
         f"--prefix={prefix}",
@@ -153,7 +155,10 @@ with tarfile.open(fileobj=io.BytesIO(archive), mode="r:") as tar:
         extracted = tar.extractfile(member)
         if extracted is None:
             sys.exit(f"pack-release: unreadable {rel}")
-        files[prefix + rel] = (extracted.read(), member.mode & 0o777)
+        # git archive applies tar.umask (group-writable by default). Keep the
+        # executable bit and store a normal 0644 or 0755 in the buyer zip.
+        mode = 0o755 if (member.mode & 0o111) else 0o644
+        files[prefix + rel] = (extracted.read(), mode)
 
 for rel in REQUIRED:
     if prefix + rel not in files:
