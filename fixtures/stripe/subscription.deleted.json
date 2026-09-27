@@ -1,0 +1,19 @@
+{
+  "id": "evt_sub_deleted_fixture",
+  "object": "event",
+  "type": "customer.subscription.deleted",
+  "livemode": false,
+  "created": 1758903600,
+  "data": {
+    "object": {
+      "id": "sub_stripe_fixture",
+      "object": "subscription",
+      "customer": "cus_fixture",
+      "status": "canceled",
+      "metadata": {
+        "maydo_actor": "org_fixture",
+        "maydo_action": "export.pdf"
+      }
+    }
+  }
+}

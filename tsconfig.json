@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "Node16",
+    "moduleResolution": "Node16",
+    "outDir": "dist",
+    "rootDir": ".",
+    "strict": true,
+    "skipLibCheck": true,
+    "sourceMap": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "declaration": false
+  },
+  "include": [
+    "packages/core/src/**/*.ts",
+    "packages/db/src/**/*.ts",
+    "packages/adapters/src/**/*.ts",
+    "packages/sdk-ts/src/**/*.ts",
+    "packages/cli/src/**/*.ts",
+    "apps/api/src/**/*.ts",
+    "apps/worker/src/**/*.ts",
+    "apps/console/src/**/*.ts",
+    "test/**/*.ts"
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "type": "order.refunded",
+  "timestamp": "2026-09-26T16:00:00Z",
+  "data": {
+    "id": "ord_refund_fixture",
+    "status": "refunded",
+    "customer_id": "cus_fixture",
+    "product_id": "prod_fixture",
+    "subscription_id": "sub_fixture",
+    "metadata": {
+      "maydo_actor": "org_fixture",
+      "maydo_actions": ["export.pdf", "admin.seat"]
+    }
+  }
+}

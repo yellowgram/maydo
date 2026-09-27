@@ -1,0 +1,25 @@
+{
+  "provider": "polar",
+  "confirmed": "2026-09-26",
+  "source": "https://polar.sh/docs/integrate/webhooks/events",
+  "grant": ["order.paid"],
+  "revoke": ["order.refunded", "subscription.revoked"],
+  "noop": [
+    "subscription.canceled",
+    "subscription.past_due",
+    "subscription.updated",
+    "subscription.active",
+    "subscription.created",
+    "subscription.uncanceled",
+    "order.created",
+    "order.updated",
+    "checkout.created",
+    "checkout.updated",
+    "benefit_grant.created",
+    "benefit_grant.updated",
+    "refund.created",
+    "refund.updated",
+    "customer_seat.assigned"
+  ],
+  "notes": "subscription.past_due stays noop unless mapping.revoke_on_past_due is explicitly enabled. subscription.updated is never a grant or revoke. order.refunded revokes even when data.status is partially_refunded."
+}

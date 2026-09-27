@@ -1,0 +1,20 @@
+{
+  "id": "evt_checkout_fixture",
+  "object": "event",
+  "type": "checkout.session.completed",
+  "livemode": false,
+  "created": 1758900000,
+  "data": {
+    "object": {
+      "id": "cs_fixture",
+      "object": "checkout.session",
+      "customer": "cus_fixture",
+      "subscription": "sub_stripe_fixture",
+      "status": "complete",
+      "metadata": {
+        "maydo_actor": "org_fixture",
+        "maydo_action": "export.pdf"
+      }
+    }
+  }
+}

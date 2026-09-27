@@ -1,0 +1,31 @@
+{
+  "name": "maydo",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "MayDo entitlement kernel — allow(actor, action). Decision only.",
+  "engines": {
+    "node": ">=22"
+  },
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json && tsc -p packages/sdk-ts/tsconfig.json",
+    "migrate": "node dist/packages/db/src/migrate.js",
+    "test": "npm run build && node --test --test-timeout 120000 dist/test/*.test.js",
+    "start:api": "node dist/apps/api/src/main.js",
+    "start:worker": "node dist/apps/worker/src/main.js",
+    "start:console": "node dist/apps/console/src/main.js",
+    "maydo": "node dist/packages/cli/src/main.js"
+  },
+  "dependencies": {
+    "pg": "^8.14.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.3",
+    "@types/pg": "^8.11.11",
+    "typescript": "^5.8.3"
+  }
+}
