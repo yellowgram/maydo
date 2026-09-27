@@ -4,7 +4,7 @@ SHA-256 of buyer zips. For the current tag, paste that row's hex into the Polar 
 
 | File | SHA-256 |
 | --- | --- |
-| `release/maydo-0.1.1.zip` | `ef51fa9ca1619588e255bbd30f5780cc700fd0acdeb166c2d1f44f442b552974` |
+| `release/maydo-0.1.1.zip` | `6175707689f2f6a3a88c818e700e2ad72e3193c3b31cb573ed29055f8bf83587` |
 | `release/maydo-0.1.0.zip` | `5aaba05786a24e23977e1646aca2a0915c5de28b3f9b98d440b245e70027586e` |
 
 ## Current pack
