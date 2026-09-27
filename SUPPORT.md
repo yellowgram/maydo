@@ -30,3 +30,15 @@ Invoicing, Chargebee, SeatTruth auto-revoke, quantity math, a packaging studio, 
 A webhook replay is not a purchase refund. A provider `order.refunded` is not a refund of MayDo. See [`docs/REFUND_GLOSSARY.md`](docs/REFUND_GLOSSARY.md).
 
 The stranger path, before you write, is [`docs/MINIMUM_SUPPORT_CHECKLIST.md`](docs/MINIMUM_SUPPORT_CHECKLIST.md).
+
+## Actor / Checkout metadata
+
+Put `maydo_actor` and `maydo_action` (or `maydo_actions`) on Checkout or the Polar order from **your server**, not from the browser alone.
+
+Browser-set metadata is a buyer footgun. If an operator actor map disagrees, the grant dead-letters with `actor_metadata_mismatch`.
+
+Verifying the webhook signature proves the event came from Stripe or Polar. It does **not** prove the metadata names the billed subject.
+
+MayDo does not add a signed actor assertion in this release.
+
+Contract: [`docs/WEBHOOK_CONTRACT.md`](docs/WEBHOOK_CONTRACT.md). Setup: [`docs/START_HERE.md`](docs/START_HERE.md).

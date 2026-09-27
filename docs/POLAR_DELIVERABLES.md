@@ -2,9 +2,9 @@
 
 Paste packet for the Chief of Staff. Do not open a second Polar product. Do not invent a coupon. Do not put a buy link in the README or inside the zip.
 
-**Hold still.** This draft does not change the live Polar listing. Freeze→land only after License Gate clears. LaunchGate CR is required before merge. Never reseal tag `v0.1.0` or `release/maydo-0.1.0.zip`.
+Tag `v0.1.1` is already shipped (GitHub Release `v0.1.1`). This file does not edit Polar, move tags, or regenerate zips. Paste the listing block below into the existing product. Never reseal tag `v0.1.0` or `release/maydo-0.1.0.zip`.
 
-The live kit stays the sealed 0.1.0 artifact until that land window. The next downloadable is `release/maydo-0.1.1.zip`. Same SKU. Same price rule: $99 for the first 20 organizations, then $149 on the same Polar product.
+Same SKU. Same price rule: $99 for the first 20 organizations, then $149 on the same Polar product. The downloadable for this tag is `release/maydo-0.1.1.zip`.
 
 Soft-WTP stays off. The README has no Checkout and no Polar buy link.
 
@@ -35,15 +35,15 @@ Tag `v0.1.0` keeps the grant text already shipped in that sealed zip. New tags u
 | Support | GitHub Issues on the private repository, **60 days** from purchase, best effort, **no SLA**, ≤ ~2 h/week |
 | Contact | hello@yellowgram.dev · https://www.yellowgram.dev |
 | Status (buyer-facing) | https://status.yellowgram.dev/maydo |
-| Zip (after land) | `release/maydo-0.1.1.zip` (prefix `maydo-0.1.1/`, comment `maydo-0.1.1`) |
+| Zip | `release/maydo-0.1.1.zip` (prefix `maydo-0.1.1/`, comment `maydo-0.1.1`) |
 | Sealed zip | `release/maydo-0.1.0.zip` (tag `v0.1.0`) — do not regenerate |
-| Checksum | Paste the 0.1.1 row from [`CHECKSUMS.md`](CHECKSUMS.md) in the land window. Do not copy a hash from this file. Leave the live Polar file on the 0.1.0 checksum until then. |
+| Checksum | When the Polar file is `release/maydo-0.1.1.zip`, paste the 0.1.1 row from [`CHECKSUMS.md`](CHECKSUMS.md). Do not copy a hash from this file. Do not regenerate either zip. |
 
 Not this product: invoicing, Chargebee, SeatTruth auto-revoke, quantity math, a packaging studio, fail-open, Soft-WTP, coupons, cold invoices.
 
 ## Paste-ready listing draft
 
-Paste the block below as the Polar description only in the License Gate freeze→land window, after LaunchGate CR and merge. While the price charged is $99, leave both numbers in the text so buyer 21 is not surprised.
+Paste the block below as the Polar description on the existing product. While the price charged is $99, leave both numbers in the text so buyer 21 is not surprised. Do not add a Checkout URL. Soft-WTP stays off.
 
 ```text
 MayDo is an entitlement kernel for one organization. It answers a single question: allow(actor, action) — may this actor do this action right now?
@@ -59,6 +59,14 @@ Refund: 14 days.
 
 Support: GitHub Issues on the private repository for 60 days from purchase. Best effort. No SLA. A ticket needs a failing test, a test-mode event id, or an allow repro. Do not send live secrets.
 
+Actor / Checkout metadata. Put maydo_actor and maydo_action (or maydo_actions) on Checkout or the Polar order from your server, not from the browser alone.
+
+Browser-set metadata is a buyer footgun. If an operator actor map disagrees, the grant dead-letters with actor_metadata_mismatch.
+
+Verifying the webhook signature proves the event came from Stripe or Polar. It does not prove the metadata names the billed subject.
+
+MayDo does not add a signed actor assertion in this release.
+
 MayDo does not invoice, replace Chargebee, auto-revoke from a seat report, do quantity math, or ship a plan packaging studio. If MayDo is down, allow fails closed. The status page is manual and is not an SLA.
 
 Status: https://status.yellowgram.dev/maydo
@@ -69,9 +77,9 @@ Seller: Suthirth solutions
 
 ## How delivery works
 
-Two artifacts, one product. Swap them only after freeze→land:
+Two artifacts, one product. GitHub Release `v0.1.1` already carries the 0.1.1 zip. Do not regenerate it.
 
-1. **Zip.** Upload `release/maydo-0.1.1.zip` as the Polar file. The same bytes go on the GitHub Release `v0.1.1`. Inside, paths start with `maydo-0.1.1/`. The zip comment is `maydo-0.1.1`. Entry times are pinned to `2026-09-26T00:00:00Z`. `docs/COMMERCIAL_GRANT.md` is in the zip. `release/maydo-0.1.0.zip` stays in the repo as the sealed historical artifact and is not this upload.
+1. **Zip.** The downloadable for this tag is `release/maydo-0.1.1.zip`. The same bytes are on GitHub Release `v0.1.1`. Inside, paths start with `maydo-0.1.1/`. The zip comment is `maydo-0.1.1`. Entry times are pinned to `2026-09-26T00:00:00Z`. `docs/COMMERCIAL_GRANT.md` is in the zip. `release/maydo-0.1.0.zip` stays in the repo as the sealed historical artifact and is not this upload.
 2. **Private GitHub.** `yellowgram/maydo` stays private. The zip for the named tag is the perpetual copy the Suthirth Commercial Grant covers. Repo access is how the buyer opens Issues during the 60-day window.
 
 Checksum field: open `docs/CHECKSUMS.md` on `main` and paste the SHA-256 of `release/maydo-0.1.1.zip` into Polar's file checksum. This document does not contain the hex. If the field and the 0.1.1 row disagree, stop. Do not regenerate `release/maydo-0.1.0.zip`.
@@ -88,17 +96,16 @@ Buyers cannot open Issues until they are invited.
 
 ## CoS flip checklist
 
-Execute this list in the land window. This draft does not flip Polar.
+Tag `v0.1.1` is already shipped. This file does not edit Polar. Do not recreate the Release or the zips. Paste the listing block on the existing product.
 
-- [ ] License Gate has cleared freeze→land. LaunchGate CR is recorded before merge.
 - [ ] https://status.yellowgram.dev/maydo returns the page in `status/index.html`.
 - [ ] `main` contains `release/maydo-0.1.1.zip`, the unchanged `release/maydo-0.1.0.zip`, and both rows in `docs/CHECKSUMS.md`.
-- [ ] GitHub Release `v0.1.1` exists on `main` and its asset is `release/maydo-0.1.1.zip`. SHA-256 matches the 0.1.1 row. Tag `v0.1.0` is untouched.
+- [ ] GitHub Release `v0.1.1` stays as shipped. Its asset is `release/maydo-0.1.1.zip`. SHA-256 matches the 0.1.1 row. Tag `v0.1.0` is untouched. Do not recreate it.
 - [ ] Founder GO stays the standing go-live. Do not open a second product decision.
 - [ ] **One** Polar product. Charge **$99** until **20** paid orders, then set **the same product** to **$149**. Do not create a second product. Do not create a coupon or a discount code.
 - [ ] Refund window **14 days**.
 - [ ] Seller organization: **Suthirth solutions**.
-- [ ] Listing paste is the block above (PolyForm Noncommercial + Suthirth Commercial Grant; source-available = true; OSI open source = false).
+- [ ] Listing paste is the block above, including Actor / Checkout metadata (PolyForm Noncommercial + Suthirth Commercial Grant; source-available = true; OSI open source = false).
 - [ ] Cover image attached. **CoS supplies it.** This repo does not include one.
 - [ ] Checksum pasted from the 0.1.1 row of `docs/CHECKSUMS.md`.
 - [ ] Soft-WTP off. No cold invoice. No waitlist SKU. No Checkout link added to the README or the zip.
@@ -126,18 +133,21 @@ Honest limits, not a roadmap:
 - Status updates are manual. Single region. Best effort. Not an SLA.
 - One purchase is one organization, self-hosted, for the named tag, under the Suthirth Commercial Grant. It is not a resale right for a competing boilerplate.
 
+## Actor / Checkout metadata
+
+Same four points as the paste block above and as `SUPPORT.md`:
+
+- Put `maydo_actor` and `maydo_action` (or `maydo_actions`) on Checkout or the Polar order from your server, not from the browser alone.
+- Browser-set metadata is a buyer footgun. If an operator actor map disagrees, the grant dead-letters with `actor_metadata_mismatch`.
+- Verifying the webhook signature proves the event came from Stripe or Polar. It does not prove the metadata names the billed subject.
+- MayDo does not add a signed actor assertion in this release.
+
 ## Soft-WTP
 
 Off. Do not add a waitlist, a name-your-price amount, a coupon, or a cold invoice. The only prices are $99 for the first 20 buyers and $149 after that, on this SKU.
 
-## GitHub Release (after merge, not this draft)
+## GitHub Release
 
-This pull request does not create a GitHub Release and does not change Polar.
+GitHub Release `v0.1.1` already exists. Tag `v0.1.0` and `release/maydo-0.1.0.zip` stay sealed. This document does not create a Release, move a tag, or regenerate a zip. It does not edit Polar.
 
-After License Gate clears, LaunchGate CR is done, and the branch is squash-merged to `main`:
-
-1. Confirm `release/maydo-0.1.0.zip` still matches the sealed SHA-256 row in `docs/CHECKSUMS.md`.
-2. Confirm `release/maydo-0.1.1.zip` matches the 0.1.1 row.
-3. Create GitHub Release `v0.1.1` on that commit. Do not move, delete, or recreate tag `v0.1.0`.
-4. Upload `release/maydo-0.1.1.zip` as the Release asset.
-5. Send CoS the Release URL. CoS swaps the Polar downloadable and listing paste in the land window. Same SKU. Same price rule.
+CoS pastes the listing block above into the existing Polar product. Same SKU. Same price rule. Soft-WTP stays off. Do not add a Checkout link to the README or the zip.
