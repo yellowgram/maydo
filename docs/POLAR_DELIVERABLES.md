@@ -1,3 +1,5 @@
+Live attachment re-checked 2026-09-28 (America/New_York): product `41780529-1f0a-4272-8721-4841920b3e31` downloadable file id `7e31690b-ac37-4bc5-b2aa-a6f928e72ac0` is `maydo-0.1.1.zip`, SHA-256 `6175707689f2f6a3a88c818e700e2ad72e3193c3b31cb573ed29055f8bf83587`.
+
 # Polar deliverables — MayDo 0.1.1
 
 
@@ -8,7 +10,7 @@ Live Polar already delivers `maydo-0.1.1.zip`. SHA-256 `6175707689f2f6a3a88c818e
 
 Tag `v0.1.1` is already shipped (GitHub Release `v0.1.1`). This file does not edit Polar, move tags, or regenerate zips. Never reseal tag `v0.1.0` or `release/maydo-0.1.0.zip`. That zip is the sealed historical grandfather, not the live download.
 
-Soft-WTP stays off. The README has no Checkout and no Polar buy link.
+The README has no Checkout and no Polar buy link.
 
 ## License (source of record)
 
@@ -18,7 +20,7 @@ Soft-WTP stays off. The README has no Checkout and no Polar buy link.
 | Commercial grant | MayDo commercial grant (`docs/COMMERCIAL_GRANT.md`) |
 | Claims | source-available = true. OSI open source = false. |
 | Legal seller | Suthirth Solutions, operating as yellowgram |
-| Contact | hello@yellowgram.dev · https://www.yellowgram.dev |
+| Contact | hello@yellowgram.dev · https://www.yellowgram.dev/maydo |
 
 Tag `v0.1.0` keeps the grant text already shipped in that sealed zip. New tags use this fence. Rights already granted for `v0.1.0` stay on that artifact.
 
@@ -35,13 +37,13 @@ Tag `v0.1.0` keeps the grant text already shipped in that sealed zip. New tags u
 | Launch | **$99 USD** for the first **20** buyers on **this same SKU** |
 | Refund | **14 days** |
 | Support | GitHub Issues on the public source-available repository `yellowgram/maydo`, **60 days** from purchase, best effort, **no SLA**, ≤ ~2 h/week |
-| Contact | hello@yellowgram.dev · https://www.yellowgram.dev |
+| Contact | hello@yellowgram.dev · https://www.yellowgram.dev/maydo |
 | Status (buyer-facing) | https://status.yellowgram.dev/maydo |
 | Zip | Live Polar file: `release/maydo-0.1.1.zip` (prefix `maydo-0.1.1/`, comment `maydo-0.1.1`) |
 | Sealed zip | `release/maydo-0.1.0.zip` (tag `v0.1.0`) — historical grandfather; do not regenerate |
 | Checksum | Live SHA-256 `6175707689f2f6a3a88c818e700e2ad72e3193c3b31cb573ed29055f8bf83587` (the 0.1.1 row in [`CHECKSUMS.md`](CHECKSUMS.md)). Do not regenerate either zip. |
 
-Not this product: invoicing, Chargebee, SeatTruth auto-revoke, quantity math, a packaging studio, fail-open, Soft-WTP, coupons, cold invoices.
+Not this product: invoicing, Chargebee, SeatTruth auto-revoke, quantity math, a packaging studio, fail-open, coupons, coupons, cold invoices.
 
 ## Paste-ready listing draft
 
@@ -79,7 +81,7 @@ MayDo does not invoice, replace Chargebee, auto-revoke from a seat report, do qu
 
 Status: https://status.yellowgram.dev/maydo
 Contact: hello@yellowgram.dev
-https://www.yellowgram.dev
+https://www.yellowgram.dev/maydo
 Legal seller: Suthirth Solutions, operating as yellowgram
 ```
 
@@ -115,7 +117,7 @@ Tag `v0.1.1` is already the live Polar download. This file does not edit Polar. 
 - [ ] Listing paste is the block above, including Actor / Checkout metadata (PolyForm Noncommercial + MayDo commercial grant; source-available = true; OSI open source = false).
 - [ ] Cover image attached. **CoS supplies it.** This repo does not include one.
 - [x] Live checksum is the 0.1.1 row of `docs/CHECKSUMS.md` (`6175707689f2f6a3a88c818e700e2ad72e3193c3b31cb573ed29055f8bf83587`). Do not replace it.
-- [ ] Soft-WTP off. No cold invoice. No waitlist SKU. No Checkout link added to the README or the zip.
+- [ ] No cold invoice. No waitlist SKU. No Checkout link added to the README or the zip.
 
 ## Refund toggle
 
@@ -149,7 +151,7 @@ Same four points as the paste block above and as `SUPPORT.md`:
 - Verifying the webhook signature proves the event came from Stripe or Polar. It does not prove the metadata names the billed subject.
 - MayDo does not add a signed actor assertion in this release.
 
-## Soft-WTP
+## coupons
 
 Off. Do not add a waitlist, a name-your-price amount, a coupon, or a cold invoice. The only prices are $99 for the first 20 buyers and $149 after that, on this SKU.
 

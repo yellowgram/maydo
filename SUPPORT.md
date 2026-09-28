@@ -13,9 +13,12 @@ Live Polar delivers `maydo-0.1.1.zip` (SHA-256 `6175707689f2f6a3a88c818e700e2ad7
 **Public license:** PolyForm Noncommercial 1.0.0 (`LICENSE`)  
 **Commercial grant:** MayDo commercial grant (`docs/COMMERCIAL_GRANT.md`) — one organization, perpetual for the named tag  
 **Claims:** source-available = true. OSI open source = false.  
-**Soft-WTP:** off
+**coupons:** off
 
 Anyone with a GitHub login can open Issues on the public source-available repository. Support answers only within 60 days of purchase for buyers. When the 60 days end, answers stop. You keep the zip and the MayDo commercial grant for that named tag.
+
+
+Security reports: [SECURITY.md](SECURITY.md).
 
 ## What a ticket must include
 
@@ -31,7 +34,7 @@ Also say whether the decision API process is one you run on your own machines or
 
 ## What we will not do
 
-Invoicing, Chargebee, SeatTruth auto-revoke, quantity math, a packaging studio, fail-open, Soft-WTP, coupons, and cold invoices are out of scope. The reply for those asks is [`docs/OUT_OF_SCOPE_AUTOREPLY.md`](docs/OUT_OF_SCOPE_AUTOREPLY.md).
+Invoicing, Chargebee, SeatTruth auto-revoke, quantity math, a packaging studio, fail-open, coupons, coupons, and cold invoices are out of scope. The reply for those asks is [`docs/OUT_OF_SCOPE_AUTOREPLY.md`](docs/OUT_OF_SCOPE_AUTOREPLY.md).
 
 A webhook replay is not a purchase refund. A provider `order.refunded` is not a refund of MayDo. See [`docs/REFUND_GLOSSARY.md`](docs/REFUND_GLOSSARY.md).
 

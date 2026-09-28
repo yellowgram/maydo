@@ -1,5 +1,10 @@
 # Buyer start here
 
+**Paid delta:** PolyForm Noncommercial 1.0.0 alone does not grant commercial production use. A paid purchase is the [MayDo commercial grant](docs/COMMERCIAL_GRANT.md) for one organization and the named tag. Legal seller: Suthirth Solutions, operating as yellowgram.
+
+Buy: [www.yellowgram.dev/maydo](https://www.yellowgram.dev/maydo) or hello@yellowgram.dev. This page is not a Checkout link. Security reports: [SECURITY.md](SECURITY.md).
+
+
 Source-available kit (zip + docs). You run this. yellowgram does not operate a hosted endpoint for this SKU.
 
 You unpacked `maydo-0.1.1.zip`. Paths below are inside `maydo-0.1.1/`. That is the live Polar download (SHA-256 `6175707689f2f6a3a88c818e700e2ad72e3193c3b31cb573ed29055f8bf83587`). `maydo-0.1.0.zip` is a sealed historical grandfather and is not this unpack.
