@@ -45,7 +45,7 @@ Not this product: invoicing, Chargebee, SeatTruth auto-revoke, quantity math, a 
 
 ## Paste-ready listing draft
 
-The block below is the description for the existing product. The live downloadable is already `maydo-0.1.1.zip`. Do not swap it for `maydo-0.1.0.zip`. While the price charged is $99, leave both numbers in the text so buyer 21 is not surprised. Do not add a Checkout URL. Soft-WTP stays off. Do not edit the Polar product id.
+Polar product id  (do not rename). Legal seller: Suthirth Solutions, operating as yellowgram. Polar organization dashboard **Suthirth solutions** (not renamed this week).
 
 ```text
 Source-available kit (zip + docs). You run this. yellowgram does not operate a hosted endpoint for this SKU.
@@ -157,4 +157,4 @@ Off. Do not add a waitlist, a name-your-price amount, a coupon, or a cold invoic
 
 GitHub Release `v0.1.1` already exists. Live Polar already delivers that zip. Tag `v0.1.0` and `release/maydo-0.1.0.zip` stay sealed. This document does not create a Release, move a tag, or regenerate a zip. It does not edit Polar.
 
-The description block above matches the existing Polar product. Same SKU. Same price rule ($99, then $149). Refund 14 days. Soft-WTP stays off. Do not add a Checkout link to the README or the zip. Do not change the Polar product id.
+Polar product id  (do not rename). Legal seller: Suthirth Solutions, operating as yellowgram. Polar organization dashboard **Suthirth solutions** (not renamed this week).
