@@ -8,12 +8,12 @@ MayDo is an entitlement kernel. The only hot-path question is `allow(actor, acti
 
 ## Commercial lock
 
-Source of record: [PolyForm Noncommercial 1.0.0](LICENSE) for the public fence, and the [Suthirth Commercial Grant](docs/COMMERCIAL_GRANT.md) for paid commercial use of a named tag. Seller: Suthirth solutions.
+Source of record: [PolyForm Noncommercial 1.0.0](LICENSE) for the public fence, and the [MayDo commercial grant](docs/COMMERCIAL_GRANT.md) for paid commercial use of a named tag. Legal seller: Suthirth Solutions, operating as yellowgram.
 
 - **Claims:** source-available = true. OSI open source = false.
 - **Price:** $149 USD once. One organization. Perpetual for the named tag.
 - **Launch:** $99 USD for the first 20 buyers, on the same SKU. No second product. No coupons.
-- **Seller:** Suthirth solutions
+- **Legal seller:** Suthirth Solutions, operating as yellowgram
 - **Refund:** 14 days. [`docs/REFUND_GLOSSARY.md`](docs/REFUND_GLOSSARY.md)
 - **Support:** GitHub Issues for 60 days from purchase. Best effort. No SLA. [`SUPPORT.md`](SUPPORT.md)
 - **Contact:** [hello@yellowgram.dev](mailto:hello@yellowgram.dev) · https://www.yellowgram.dev

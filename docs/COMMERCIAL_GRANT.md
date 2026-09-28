@@ -1,14 +1,15 @@
-# Suthirth Commercial Grant
+# MayDo commercial grant
 
 **Product:** MayDo  
-**Seller:** Suthirth solutions  
+**Legal seller:** Suthirth Solutions, operating as yellowgram  
+**Public brand:** MayDo · yellowgram  
 **Contact:** hello@yellowgram.dev · https://www.yellowgram.dev  
-**Public license:** PolyForm Noncommercial 1.0.0 (`LICENSE`) — source-available; not OSI open source  
+**Public license:** PolyForm Noncommercial 1.0.0 (`LICENSE`) — source-available; not an OSI-approved license  
 **Soft-WTP:** off (no coupons, no cold invoices)
 
 ## What you buy
 
-A paid Polar purchase of the **MayDo** self-host kit grants **one organization** a **Suthirth Commercial Grant** for that kit.
+A paid Polar purchase of the **MayDo** self-host kit grants **one organization** a **MayDo commercial grant** for that kit.
 
 | Term | Grant |
 | --- | --- |
@@ -29,7 +30,7 @@ Price for the current kit SKU is set on Polar / yellowgram.dev Current card ($99
 - Permission to **resell, sublicense, republish, or redistribute** the kit (or a substantial portion) as a competing starter, boilerplate, template, course, or hosted service
 - A managed or always-on cloud service operated by yellowgram. This purchase is the self-host kit only. yellowgram does not operate a hosted endpoint for this SKU
 - Permission to run a **competing hosted** offering of MayDo
-- Any OSI “open source” grant; payment does not convert the public PolyForm Noncommercial terms into MIT/Apache/BSD
+- Any OSI-approved “open source” grant; payment does not convert the public PolyForm Noncommercial terms into MIT/Apache/BSD
 
 ## Relationship to `LICENSE`
 
@@ -38,7 +39,7 @@ With this grant, the named organization may use the named tag commercially as ab
 
 ## Prior distributions
 
-Tags and zips already shipped under an older license (for example MIT, or a prior custom commercial license) are **not rewritten**. Rights already granted for those sealed artifacts are not clawed back. New purchases and new tags use this grant + PolyForm Noncommercial fence.
+Tags and zips already shipped under an older license (for example MIT, or a prior custom commercial license, or the prior grant name “Suthirth Commercial Grant”) are **not rewritten**. Rights already granted for those sealed artifacts are not clawed back. New purchases and new tags use this grant + PolyForm Noncommercial fence.
 
 | Tag / artifact | SHA-256 | Prior license | Status |
 | --- | --- | --- | --- |

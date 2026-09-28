@@ -1,5 +1,7 @@
 # Polar deliverables — MayDo 0.1.1
 
+
+Polar product id `41780529-1f0a-4272-8721-4841920b3e31` (do not rename). Legal seller: Suthirth Solutions, operating as yellowgram. Polar organization dashboard **Suthirth solutions** (not renamed this week).
 Paste packet for the Chief of Staff. Do not open a second Polar product. Do not invent a coupon. Do not put a buy link in the README or inside the zip.
 
 Live Polar already delivers `maydo-0.1.1.zip`. SHA-256 `6175707689f2f6a3a88c818e700e2ad72e3193c3b31cb573ed29055f8bf83587`. Same SKU. Price $99 for the first 20 organizations, then $149. Refund 14 days.
@@ -13,9 +15,9 @@ Soft-WTP stays off. The README has no Checkout and no Polar buy link.
 | Field | Value |
 | --- | --- |
 | Public license | PolyForm Noncommercial 1.0.0 (`LICENSE`) |
-| Commercial grant | Suthirth Commercial Grant (`docs/COMMERCIAL_GRANT.md`) |
+| Commercial grant | MayDo commercial grant (`docs/COMMERCIAL_GRANT.md`) |
 | Claims | source-available = true. OSI open source = false. |
-| Seller | Suthirth solutions |
+| Legal seller | Suthirth Solutions, operating as yellowgram |
 | Contact | hello@yellowgram.dev · https://www.yellowgram.dev |
 
 Tag `v0.1.0` keeps the grant text already shipped in that sealed zip. New tags use this fence. Rights already granted for `v0.1.0` stay on that artifact.
@@ -25,7 +27,7 @@ Tag `v0.1.0` keeps the grant text already shipped in that sealed zip. New tags u
 | Field | Value |
 | --- | --- |
 | Product | MayDo — entitlement kernel |
-| Seller | Suthirth solutions |
+| Legal seller | Suthirth Solutions, operating as yellowgram |
 | Repo | public source-available `yellowgram/maydo` |
 | Shape | Source-available kit (zip + docs). You run this. yellowgram does not operate a hosted endpoint for this SKU. Self-host decision API process + thin TypeScript SDK (cache **off** by default) — buyer runs Postgres/API/worker. Stripe and Polar signed webhooks + local grants. |
 | Decision | `allow(actor, action)` only |
@@ -43,7 +45,7 @@ Not this product: invoicing, Chargebee, SeatTruth auto-revoke, quantity math, a 
 
 ## Paste-ready listing draft
 
-The block below is the description for the existing product. The live downloadable is already `maydo-0.1.1.zip`. Do not swap it for `maydo-0.1.0.zip`. While the price charged is $99, leave both numbers in the text so buyer 21 is not surprised. Do not add a Checkout URL. Soft-WTP stays off. Do not edit the Polar product id.
+Polar product id `41780529-1f0a-4272-8721-4841920b3e31` (do not rename). Legal seller: Suthirth Solutions, operating as yellowgram. Polar organization dashboard **Suthirth solutions** (not renamed this week).
 
 ```text
 Source-available kit (zip + docs). You run this. yellowgram does not operate a hosted endpoint for this SKU.
@@ -56,7 +58,7 @@ Live download: maydo-0.1.1.zip. SHA-256 6175707689f2f6a3a88c818e700e2ad72e3193c3
 
 You run Postgres, the decision API process, and the worker. Stripe and Polar stay the system of record for money. MayDo stores grants from signed Stripe and Polar webhooks, plus local grants, and serves the decision. The TypeScript SDK is thin and its cache is off by default.
 
-Public license: PolyForm Noncommercial 1.0.0. Commercial production use requires a Suthirth Commercial Grant for one organization and the named release tag (docs/COMMERCIAL_GRANT.md in the kit). Source-available = true. OSI open source = false.
+Public license: PolyForm Noncommercial 1.0.0. Commercial production use requires a MayDo commercial grant for one organization and the named release tag (docs/COMMERCIAL_GRANT.md in the kit). Source-available = true. OSI open source = false.
 
 Price: $149 USD once. Perpetual for that named tag, for the purchased organization.
 Launch price: $99 USD for the first 20 organizations, on this same product. Then $149. There is no coupon and no second product.
@@ -78,7 +80,7 @@ MayDo does not invoice, replace Chargebee, auto-revoke from a seat report, do qu
 Status: https://status.yellowgram.dev/maydo
 Contact: hello@yellowgram.dev
 https://www.yellowgram.dev
-Seller: Suthirth solutions
+Legal seller: Suthirth Solutions, operating as yellowgram
 ```
 
 ## How delivery works
@@ -86,7 +88,7 @@ Seller: Suthirth solutions
 Two artifacts, one product. GitHub Release `v0.1.1` already carries the 0.1.1 zip. Do not regenerate it.
 
 1. **Zip.** Live Polar delivers `release/maydo-0.1.1.zip`. SHA-256 `6175707689f2f6a3a88c818e700e2ad72e3193c3b31cb573ed29055f8bf83587`, the same hex as the 0.1.1 row in `docs/CHECKSUMS.md`. The same bytes are on GitHub Release `v0.1.1`. Inside, paths start with `maydo-0.1.1/`. The zip comment is `maydo-0.1.1`. Entry times are pinned to `2026-09-26T00:00:00Z`. `docs/COMMERCIAL_GRANT.md` is in the zip. `release/maydo-0.1.0.zip` stays sealed as the historical grandfather and is not this download.
-2. **Public source-available GitHub.** `yellowgram/maydo` is public. The zip for the named tag is the perpetual copy the Suthirth Commercial Grant covers. Anyone with a GitHub login can open Issues. Support answers only within the 60-day window from purchase for buyers.
+2. **Public source-available GitHub.** `yellowgram/maydo` is public. The zip for the named tag is the perpetual copy the MayDo commercial grant covers. Anyone with a GitHub login can open Issues. Support answers only within the 60-day window from purchase for buyers.
 
 Do not regenerate `release/maydo-0.1.1.zip` or `release/maydo-0.1.0.zip`. If Polar's checksum field and that hex disagree, stop. Do not swap the live file back to 0.1.0.
 
@@ -97,7 +99,7 @@ Anyone with a GitHub login can open Issues on the public source-available reposi
 1. The buyer opens an Issue on `yellowgram/maydo`. No live secrets, no webhook signing keys.
 2. Support answers only within **60 days from purchase** for buyers. Best effort. No SLA. Aggregate cap about **2 hours a week**.
 3. A ticket must include a failing test, a **test-mode** provider event id, or an `allow` repro (`actor`, `action`, expected, actual). Reject live secrets. Point out-of-scope asks at `docs/OUT_OF_SCOPE_AUTOREPLY.md` and `SUPPORT.md`.
-4. When the 60 days end, stop answering Issues. Stopping answers is not a grant revoke. They keep the zip and the Suthirth Commercial Grant for that named tag (`docs/COMMERCIAL_GRANT.md`). The public fence is PolyForm Noncommercial 1.0.0 (`LICENSE`).
+4. When the 60 days end, stop answering Issues. Stopping answers is not a grant revoke. They keep the zip and the MayDo commercial grant for that named tag (`docs/COMMERCIAL_GRANT.md`). The public fence is PolyForm Noncommercial 1.0.0 (`LICENSE`).
 
 ## CoS flip checklist
 
@@ -110,7 +112,7 @@ Tag `v0.1.1` is already the live Polar download. This file does not edit Polar. 
 - [ ] **One** Polar product. Charge **$99** until **20** paid orders, then set **the same product** to **$149**. Do not create a second product. Do not create a coupon or a discount code.
 - [ ] Refund window **14 days**.
 - [ ] Seller organization: **Suthirth solutions**.
-- [ ] Listing paste is the block above, including Actor / Checkout metadata (PolyForm Noncommercial + Suthirth Commercial Grant; source-available = true; OSI open source = false).
+- [ ] Listing paste is the block above, including Actor / Checkout metadata (PolyForm Noncommercial + MayDo commercial grant; source-available = true; OSI open source = false).
 - [ ] Cover image attached. **CoS supplies it.** This repo does not include one.
 - [x] Live checksum is the 0.1.1 row of `docs/CHECKSUMS.md` (`6175707689f2f6a3a88c818e700e2ad72e3193c3b31cb573ed29055f8bf83587`). Do not replace it.
 - [ ] Soft-WTP off. No cold invoice. No waitlist SKU. No Checkout link added to the README or the zip.
@@ -136,7 +138,7 @@ Honest limits, not a roadmap:
 - `md_op_` keys are refused by the SDK. Operator actions stay on the CLI.
 - The process you run is one API process at founding. The allow rate limit does not cross processes.
 - Kit status notes are manual. Best effort. Not an SLA. yellowgram does not operate the decision API.
-- One purchase is one organization, self-hosted, for the named tag, under the Suthirth Commercial Grant. It is not a resale right for a competing boilerplate.
+- One purchase is one organization, self-hosted, for the named tag, under the MayDo commercial grant. It is not a resale right for a competing boilerplate.
 
 ## Actor / Checkout metadata
 
@@ -155,4 +157,4 @@ Off. Do not add a waitlist, a name-your-price amount, a coupon, or a cold invoic
 
 GitHub Release `v0.1.1` already exists. Live Polar already delivers that zip. Tag `v0.1.0` and `release/maydo-0.1.0.zip` stay sealed. This document does not create a Release, move a tag, or regenerate a zip. It does not edit Polar.
 
-The description block above matches the existing Polar product. Same SKU. Same price rule ($99, then $149). Refund 14 days. Soft-WTP stays off. Do not add a Checkout link to the README or the zip. Do not change the Polar product id.
+Polar product id `41780529-1f0a-4272-8721-4841920b3e31` (do not rename). Legal seller: Suthirth Solutions, operating as yellowgram. Polar organization dashboard **Suthirth solutions** (not renamed this week).

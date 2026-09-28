@@ -9,13 +9,13 @@ Live Polar delivers `maydo-0.1.1.zip` (SHA-256 `6175707689f2f6a3a88c818e700e2ad7
 **Window:** GitHub Issues on the public source-available repository `yellowgram/maydo`, for **60 days** from purchase.  
 **Effort:** best effort, about **2 hours a week** across buyers. **No SLA.**  
 **Contact:** hello@yellowgram.dev · https://www.yellowgram.dev  
-**Seller:** Suthirth solutions  
+**Legal seller:** Suthirth Solutions, operating as yellowgram  
 **Public license:** PolyForm Noncommercial 1.0.0 (`LICENSE`)  
-**Commercial grant:** Suthirth Commercial Grant (`docs/COMMERCIAL_GRANT.md`) — one organization, perpetual for the named tag  
+**Commercial grant:** MayDo commercial grant (`docs/COMMERCIAL_GRANT.md`) — one organization, perpetual for the named tag  
 **Claims:** source-available = true. OSI open source = false.  
 **Soft-WTP:** off
 
-Anyone with a GitHub login can open Issues on the public source-available repository. Support answers only within 60 days of purchase for buyers. When the 60 days end, answers stop. You keep the zip and the Suthirth Commercial Grant for that named tag.
+Anyone with a GitHub login can open Issues on the public source-available repository. Support answers only within 60 days of purchase for buyers. When the 60 days end, answers stop. You keep the zip and the MayDo commercial grant for that named tag.
 
 ## What a ticket must include
 

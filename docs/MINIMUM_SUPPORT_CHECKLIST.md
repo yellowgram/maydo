@@ -5,7 +5,7 @@ Stranger path for one self-hosted organization. Docs are the proof. Do not add a
 **Price:** $149 USD once. Launch $99 for the first 20 buyers on the same SKU.  
 **Support:** GitHub Issues on the public source-available repository `yellowgram/maydo`, 60 days from purchase, best effort, no SLA, ≤ ~2 h/week. Anyone with a GitHub login can open Issues. Support answers only within 60 days of purchase for buyers.  
 **Contact:** hello@yellowgram.dev  
-**License:** PolyForm Noncommercial 1.0.0 (`LICENSE`) plus the Suthirth Commercial Grant (`docs/COMMERCIAL_GRANT.md`). Claims: source-available = true. OSI open source = false. Soft-WTP is off.
+**License:** PolyForm Noncommercial 1.0.0 (`LICENSE`) plus the MayDo commercial grant (`docs/COMMERCIAL_GRANT.md`). Claims: source-available = true. OSI open source = false. Soft-WTP is off.
 
 ## Before they open an Issue
 
