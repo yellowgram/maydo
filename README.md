@@ -16,8 +16,8 @@ Source of record: [PolyForm Noncommercial 1.0.0](LICENSE) for the public fence, 
 - **Legal seller:** Suthirth Solutions, operating as yellowgram
 - **Refund:** 14 days. [`docs/REFUND_GLOSSARY.md`](docs/REFUND_GLOSSARY.md)
 - **Support:** GitHub Issues for 60 days from purchase. Best effort. No SLA. [`SUPPORT.md`](SUPPORT.md)
-- **Contact:** [hello@yellowgram.dev](mailto:hello@yellowgram.dev) · https://www.yellowgram.dev
-- **Soft-WTP:** off. Cold invoices are not sold. This README has no Checkout and no buy link.
+- **Contact:** [hello@yellowgram.dev](mailto:hello@yellowgram.dev) · https://www.yellowgram.dev/maydo
+- **coupons:** off. Cold invoices are not sold. This README has no Checkout and no buy link.
 - **Polar:** Live Polar delivers `maydo-0.1.1.zip` (SHA-256 `6175707689f2f6a3a88c818e700e2ad72e3193c3b31cb573ed29055f8bf83587`). Same SKU: $99 for the first 20 buyers, then $149. Refund 14 days. `release/maydo-0.1.0.zip` on tag `v0.1.0` stays sealed as the historical grandfather. Packet: [`docs/POLAR_DELIVERABLES.md`](docs/POLAR_DELIVERABLES.md). Status page source is `status/index.html`. This repo does not host [https://status.yellowgram.dev/maydo](https://status.yellowgram.dev/maydo).
 
 ## Quick start
@@ -67,3 +67,6 @@ Product design lives in [`design/`](design/). Read order:
 8. [`design/LAUNCHGATE_DR4_PACK.md`](design/LAUNCHGATE_DR4_PACK.md) — go/no-go pack
 
 **LaunchGate DR4: APPROVE.** Implementation follows the DR3 freeze. Design history stays in `design/`.
+
+
+Security reports: [SECURITY.md](SECURITY.md).

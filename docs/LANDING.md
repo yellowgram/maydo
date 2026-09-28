@@ -12,4 +12,4 @@ MayDo is a decision kernel. It is not a monetization system of record. Polar del
 
 Do not describe MayDo as Stigg, Schematic, Autumn, or Chargebee. A sentence about invoicing, metering-for-invoice, or a packaging studio is a different product.
 
-Price and the Polar listing live in `docs/POLAR_DELIVERABLES.md`. The public license is PolyForm Noncommercial 1.0.0 (`LICENSE`). Commercial production use is the MayDo commercial grant (`docs/COMMERCIAL_GRANT.md`). Claims: source-available = true. OSI open source = false. Soft-WTP is off.
+Price and the Polar listing live in `docs/POLAR_DELIVERABLES.md`. The public license is PolyForm Noncommercial 1.0.0 (`LICENSE`). Commercial production use is the MayDo commercial grant (`docs/COMMERCIAL_GRANT.md`). Claims: source-available = true. OSI open source = false.
