@@ -6,7 +6,7 @@ You unpacked `maydo-0.1.1.zip`. Paths below are inside `maydo-0.1.1/`. That is t
 
 Polar delivers maydo-x.y.z.zip. There is no managed / always-on cloud service in this purchase.
 
-MayDo answers `allow(actor, action)` for **one organization**. You run Postgres, the decision API process, and the worker. The public license is PolyForm Noncommercial 1.0.0 (`LICENSE`). Paid commercial use of this named tag is the Suthirth Commercial Grant (`docs/COMMERCIAL_GRANT.md`). Claims: source-available = true. OSI open source = false. Support limits are `SUPPORT.md`.
+MayDo answers `allow(actor, action)` for **one organization**. You run Postgres, the decision API process, and the worker. The public license is PolyForm Noncommercial 1.0.0 (`LICENSE`). Paid commercial use of this named tag is the MayDo commercial grant (`docs/COMMERCIAL_GRANT.md`). Claims: source-available = true. OSI open source = false. Support limits are `SUPPORT.md`.
 
 ## 1. Unzip
 

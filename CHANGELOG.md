@@ -9,7 +9,7 @@ Offer copy states the commercial SKU: a self-host kit. You run Postgres, the dec
 License fence only. Entitlement kernel, webhook, and SDK behavior are unchanged.
 
 - Public license is PolyForm Noncommercial 1.0.0 (`LICENSE`).
-- Paid commercial use is the Suthirth Commercial Grant (`docs/COMMERCIAL_GRANT.md`).
+- Paid commercial use is the MayDo commercial grant (`docs/COMMERCIAL_GRANT.md`).
 - Claims: source-available = true. OSI open source = false.
 - Soft-WTP stays off.
 - Buyer zip: `release/maydo-0.1.1.zip`.
