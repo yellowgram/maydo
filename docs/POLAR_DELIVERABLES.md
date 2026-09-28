@@ -1,7 +1,7 @@
 # Polar deliverables — MayDo 0.1.1
 
 
-Polar product id  (do not rename). Legal seller: Suthirth Solutions, operating as yellowgram. Polar organization dashboard **Suthirth solutions** (not renamed this week).
+Polar product id `41780529-1f0a-4272-8721-4841920b3e31` (do not rename). Legal seller: Suthirth Solutions, operating as yellowgram. Polar organization dashboard **Suthirth solutions** (not renamed this week).
 Paste packet for the Chief of Staff. Do not open a second Polar product. Do not invent a coupon. Do not put a buy link in the README or inside the zip.
 
 Live Polar already delivers `maydo-0.1.1.zip`. SHA-256 `6175707689f2f6a3a88c818e700e2ad72e3193c3b31cb573ed29055f8bf83587`. Same SKU. Price $99 for the first 20 organizations, then $149. Refund 14 days.
@@ -45,7 +45,7 @@ Not this product: invoicing, Chargebee, SeatTruth auto-revoke, quantity math, a 
 
 ## Paste-ready listing draft
 
-Polar product id  (do not rename). Legal seller: Suthirth Solutions, operating as yellowgram. Polar organization dashboard **Suthirth solutions** (not renamed this week).
+Polar product id `41780529-1f0a-4272-8721-4841920b3e31` (do not rename). Legal seller: Suthirth Solutions, operating as yellowgram. Polar organization dashboard **Suthirth solutions** (not renamed this week).
 
 ```text
 Source-available kit (zip + docs). You run this. yellowgram does not operate a hosted endpoint for this SKU.
@@ -157,4 +157,4 @@ Off. Do not add a waitlist, a name-your-price amount, a coupon, or a cold invoic
 
 GitHub Release `v0.1.1` already exists. Live Polar already delivers that zip. Tag `v0.1.0` and `release/maydo-0.1.0.zip` stay sealed. This document does not create a Release, move a tag, or regenerate a zip. It does not edit Polar.
 
-Polar product id  (do not rename). Legal seller: Suthirth Solutions, operating as yellowgram. Polar organization dashboard **Suthirth solutions** (not renamed this week).
+Polar product id `41780529-1f0a-4272-8721-4841920b3e31` (do not rename). Legal seller: Suthirth Solutions, operating as yellowgram. Polar organization dashboard **Suthirth solutions** (not renamed this week).

@@ -1,7 +1,7 @@
 # Kit status
 
 
-Polar product id  (do not rename). Legal seller: Suthirth Solutions, operating as yellowgram. Polar organization dashboard **Suthirth solutions** (not renamed this week).
+Polar product id `41780529-1f0a-4272-8721-4841920b3e31` (do not rename). Legal seller: Suthirth Solutions, operating as yellowgram. Polar organization dashboard **Suthirth solutions** (not renamed this week).
 Source-available kit (zip + docs). You run this. yellowgram does not operate a hosted endpoint for this SKU.
 
 **Page source:** `status/index.html`  
